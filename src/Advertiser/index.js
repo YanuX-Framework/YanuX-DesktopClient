@@ -1,0 +1,1 @@
+module.exports.IBeaconAdvertiser = require('./IBeaconAdvertiser');

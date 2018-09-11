@@ -1,0 +1,1 @@
+module.exports.BeaconScanner = require('./BeaconScanner');
