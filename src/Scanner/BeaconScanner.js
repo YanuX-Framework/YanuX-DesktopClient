@@ -1,49 +1,66 @@
+const _ = require('lodash');
 const noble = require('noble');
+const EventEmitter = require('events');
 const BeaconDetector = require('./BeaconDetector');
+const BeaconMatcher = require('./BeaconMatcher');
 
-module.exports = class BeaconScanner {
-    constructor(refreshInterval, inactivityTimer,
-        id = null, type = null, values = []) {
+module.exports = class BeaconScanner extends EventEmitter {
+    constructor(refreshInterval, inactivityTimer) {
+        super();
         this.beacons = {};
         this._beaconDetector = new BeaconDetector();
         this._refreshInterval = refreshInterval;
         this._inactivityTimer = inactivityTimer;
-        this.id = id;
-        this.type = type;
-        this.values = values
-        this.clearUnseenBeaconsPolling = null;
+        this.clearExpiredBeaconsPolling = null;
+        this._defaultMatcher = new BeaconMatcher();
+        this.matchers = [this._defaultMatcher];
     }
     startScanning(callback) {
         noble.on('stateChange', state => {
             if (state === 'poweredOn') {
                 noble.startScanning([], true, callback);
-                this.clearUnseenBeaconsPolling = setInterval(() => {
+                this.clearExpiredBeaconsPolling = setInterval(() => {
                     let currentTime = new Date().getTime();
-                    let currentBeacons = Object.entries(this.beacons);
-                    currentBeacons.forEach(beacon => {
-                        if (currentTime - beacon[1].timestamp > this._inactivityTimer) {
-                            delete this.beacons[beacon[0].key];
+                    this.beacons = _.omitBy(this.beacons, beacon => {
+                        if (currentTime - beacon.timestamp > this._inactivityTimer) {
+                            this.emit('beaconRemoved', beacon);
+                            return true;
+                        } else {
+                            return false;
                         }
                     });
+                    this.emit('beaconsCleared', this.beacons);
                 }, this._refreshInterval);
             }
         });
         noble.on('discover', peripheral => {
             this._beaconDetector.peripheral = peripheral;
             const beacon = this._beaconDetector.beacon;
-            if ((!this.id
-                || (this.id && beacon.id === this.id))
-                && (!this.type
-                    || (this.type && beacon.type === this.type))
-                && (!this.values
-                    || this.values.length === 0
-                    || (this.values && beacon.values.join() === this.values.join()))) {
-                this.beacons[beacon.key] = beacon;
-            }
+            this.matchers.forEach(matcher => {
+                if (matcher.match(beacon)) {
+                    if (beacon.key in this.beacons) {
+                        this.beacons[beacon.key] = beacon;
+                        this.emit('beaconUpdated', beacon, peripheral);
+                    } else {
+                        this.beacons[beacon.key] = beacon;
+                        this.emit('beaconCreated', beacon, peripheral);
+                    }
+                }
+            })
+            this.emit('beaconsUpdated', this.beacons);
         })
     }
     stopScanning(callback) {
-        clearInterval(this.clearUnseenBeaconsPolling);
+        clearInterval(this.clearExpiredBeaconsPolling);
         noble.stopScanning(callback);
+    }
+    addMatcher(matcher) {
+        this.removeMatcher(this._defaultMatcher);
+        this.matchers.push(matcher);
+    }
+    removeMatcher(matcher) {
+        this.matchers = this.matchers.filter(currMatcher => {
+            currMatcher !== matcher;
+        })
     }
 }
