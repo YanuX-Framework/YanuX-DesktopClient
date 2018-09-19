@@ -1,0 +1,16 @@
+{
+    "http_port": 3002,
+    "client_id": "yanux-ips-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3002",
+    "ips_server_url": "http://localhost:3030",
+    "oauth2_authorization_server_url": "http://localhost:3000",
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 500,
+    "beacons_inactivity_timer": 1000,
+    "device_id": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
+    "access_token": "ceeo8afq4d0tJn10XH2kczSN67CeGU1QewtzSGxCHt6nBXWRExkhZmQOLRUV34FpcwCjFGGuztIbbwG6aD3t7yi5uTGxxfpcGODtghTU1qH0jGAjhlPaAcsmBvv1YuprahqaRPK40CIZm5s3wKGrs6wCnjovwIgnAZnPL6mpJChi00wHRddSOZs50HGtLh5Lk4B5OkD3oACF7T78CPbG6CaMpRAhG3DNSYevgqpeNSlyBHykpsevUcIU6YfrGhJh",
+    "refresh_token": "BrgukgN3p0pZsYDAfQagclRltqVkixIy3ASq07xiQxiy03MYPydE3dkC89wCBvkAumN7vA1l2JKRN1bAsHjS3vDqDX5iJ6vBysvDI6Wc67m7Xok2JCh2hz5EozIskQHeiiLoRgeV2Ap1xAG9XmGtU2TdKAsRwdjIVoTTFS3lwvAbHGsKRmaoyYXx1nEMWOSBrmczvwpgGIW48esloCS7VYjN5EGRxMKkoGlq8i3OFx43BR1aIgrtI497zMXJGGcZ"
+}
