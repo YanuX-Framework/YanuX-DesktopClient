@@ -42,7 +42,7 @@ function printBeacons(title = null, clear = false) {
     }
 }
 
-function validateConfig(config) {
+function validateConfig(config, path) {
     if (!_.isFinite(config.http_port)) {
         throw new Error('"http_port" value is either missing or invalid');
     }
@@ -89,6 +89,7 @@ function validateConfig(config) {
     if (_.isNil(config.device_id)) {
         console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
         config.device_id = uuidv1();
+        saveConfig(path, config);
     }
     return config;
 }
@@ -187,8 +188,8 @@ function connectYanuxIpsServer(config, beaconScanner) {
                         deviceId: config.device_id,
                         beaconKey: beacon.key
                     }
-                }).then(beacon => {
-                    console.log('Beacon Patched:', beacon);
+                }).then(beacons => {
+                    console.log('Beacons Patched:', beacons);
                 }).catch(e => {
                     console.log(e);
                 });
@@ -200,11 +201,15 @@ function connectYanuxIpsServer(config, beaconScanner) {
                     deviceId: config.device_id,
                     beaconKey: beacon.key
                 }
-            }).then(beacon => {
-                console.log('Beacon Removed:', beacon);
+            }).then(beacons => {
+                console.log('Beacons Removed:', beacons);
             }).catch(e => {
                 console.log(e);
             });
+        });
+        const eventsService = client.service('events');
+        eventsService.on('proxemics', proxemics => {
+            console.log('--> Proxemics: ', proxemics)
         });
     }).catch(e => {
         console.error('Authentication Error', e);
@@ -254,7 +259,7 @@ function main() {
             if (err) {
                 throw err;
             }
-            const config = validateConfig(JSON.parse(data));
+            const config = validateConfig(JSON.parse(data), configPath);
             const beaconScanner = bluetoothLe(
                 config.beacons_print_updated || DEFAULT_BEACONS_PRINT_UPDATED,
                 config.beacons_print_cleared || DEFAULT_BEACONS_CLEAR_CONSOLE,
@@ -265,7 +270,6 @@ function main() {
                 connectYanuxIpsServer(config, beaconScanner);
             }
             initHttpServer(configPath, config, beaconScanner);
-            saveConfig(configPath, config);
         });
 }
 
