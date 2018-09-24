@@ -84,7 +84,7 @@ function validateConfig(config, path) {
         throw new Error('"beacons_inactivity_timer" value is invalid');
     }
     if (_.isNil(config.access_token)) {
-        console.log('Go to http://localhost:3000/oauth2/authorize?client_id=yanux-ips-desktop-client&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.')
+        console.log('Go to http://localhost:3001/oauth2/authorize?client_id=yanux-ips-desktop-client&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.')
     }
     if (_.isNil(config.device_id)) {
         console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
