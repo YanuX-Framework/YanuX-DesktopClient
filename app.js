@@ -14,6 +14,8 @@ const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
 
 const DEFAULT_CONFIG_PATH = './config.json';
 const DEFAULT_CONFIG_STRINGIFY_SPACES = 4;
+const DEFAULT_BEACON_ADVERTISER_PARAMETERS = ['113069ec6e644bd36810de01b36e8a3e', 100, 100]
+const DEFAULT_BEACON_MATCHER_PARAMETERS = [null, 'iBeacon', ['113069EC-6E64-4BD3-6810-DE01B36E8A3E']];
 const DEFAULT_BEACONS_PRINT_UPDATED = false;
 const DEFAULT_BEACONS_PRINT_CLEARED = false;
 const DEFAULT_BEACONS_CLEAR_CONSOLE = false;
@@ -61,6 +63,16 @@ function validateConfig(config, path) {
     if (!_.isString(config.oauth2_authorization_server_url)) {
         throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
     }
+    if (!_.isNil(config.beacon_advertiser_parameters)
+        && !_.isArray(config.beacon_advertiser_parameters)
+        && !_.isEmpty(config.beacon_advertiser_parameters)) {
+        throw new Error('"beacon_advertiser_parameters" value is invalid');
+    }
+    if (!_.isNil(config.beacon_matcher_parameters)
+        && !_.isArray(config.beacon_matcher_parameters)
+        && !_.isEmpty(config.beacon_matcher_parameters)) {
+        throw new Error('"beacon_matcher_parameters" value is invalid');
+    }
     if (!_.isNil(config.beacons_print_updated)
         && !_.isBoolean(config.beacons_print_updated)) {
         throw new Error('"beacons_print_updated" value is invalid');
@@ -84,7 +96,7 @@ function validateConfig(config, path) {
         throw new Error('"beacons_inactivity_timer" value is invalid');
     }
     if (_.isNil(config.access_token)) {
-        console.log('Go to http://localhost:3001/oauth2/authorize?client_id=yanux-ips-desktop-client&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.')
+        console.log(`Go to http://localhost:3001/oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.`);
     }
     if (_.isNil(config.device_id)) {
         console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
@@ -104,15 +116,22 @@ function saveConfig(path, config) {
 }
 
 function bluetoothLe(
+    beaconAdvertiserParameters = DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+    beaconMatcherParameters = DEFAULT_BEACON_MATCHER_PARAMETERS,
     beaconsPrintUpdated = DEFAULT_BEACONS_PRINT_UPDATED,
     beaconsPrintCleared = DEFAULT_BEACONS_PRINT_CLEARED,
     beaconsClearConsole = DEFAULT_BEACONS_CLEAR_CONSOLE,
     beaconsRefreshInterval = DEFAULT_BEACONS_REFRESH_INTERVAL,
     beaconsInactivityTimer = DEFAULT_BEACONS_INACTIVITY_TIMER) {
-    const ibeacon_advertiser = new IBeaconAdvertiser('113069ec6e644bd36810de01b36e8a3e', 100, 1);
+
+    beaconAdvertiserParameters.unshift(null);
+    const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
     ibeacon_advertiser.startAdvertising(errorCallback);
+
     const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
-    beacon_scanner.addMatcher(new BeaconMatcher(null, 'iBeacon', ['113069EC-6E64-4BD3-6810-DE01B36E8A3E']))
+    beaconMatcherParameters.unshift(null);
+    beacon_scanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, beaconMatcherParameters)));
+
     if (beaconsPrintUpdated) {
         beacon_scanner.on('beaconsUpdated', printBeacons('beaconsUpdated', beaconsClearConsole));
     }
@@ -140,6 +159,7 @@ function connectYanuxIpsServer(config, beaconScanner) {
     client.authenticate({
         strategy: 'yanux',
         accessToken: config.access_token,
+        clientId: config.client_id
     }).then(response => {
         console.log('Logged in successfully with the following JWT: ' + response.accessToken);
         return client.passport.verifyJWT(response.accessToken);
@@ -237,7 +257,7 @@ function initHttpServer(configPath, config, beaconScanner) {
             }, (err, resp, body) => {
                 if (err) { return console.log(err); }
                 if (_.isNil(body.error)) {
-                    res.write('Access Token and Refresh Token retrieved. You may now close this page.');
+                    res.write('Access and Refresh Tokens retrieved. You may now close this page.');
                     config.access_token = body.access_token;
                     config.refresh_token = body.refresh_token;
                     saveConfig(configPath, config);
@@ -248,6 +268,9 @@ function initHttpServer(configPath, config, beaconScanner) {
                 }
                 res.end();
             });
+        } else {
+            res.write('It was not possible retrieve the Access and Refresh Tokens. Please try again later.');
+            res.end();
         }
     });
 }
@@ -261,6 +284,8 @@ function main() {
             }
             const config = validateConfig(JSON.parse(data), configPath);
             const beaconScanner = bluetoothLe(
+                config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+                config.beacon_matcher_parameters || DEFAULT_BEACON_MATCHER_PARAMETERS,
                 config.beacons_print_updated || DEFAULT_BEACONS_PRINT_UPDATED,
                 config.beacons_print_cleared || DEFAULT_BEACONS_CLEAR_CONSOLE,
                 config.beacons_clear_console || DEFAULT_BEACONS_CLEAR_CONSOLE,
