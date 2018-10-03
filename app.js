@@ -98,9 +98,9 @@ function validateConfig(config, path) {
     if (_.isNil(config.access_token)) {
         console.log(`Go to http://localhost:3001/oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.`);
     }
-    if (_.isNil(config.device_id)) {
+    if (_.isNil(config.device_uuid)) {
         console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
-        config.device_id = uuidv1();
+        config.device_uuid = uuidv1();
         saveConfig(path, config);
     }
     return config;
@@ -154,8 +154,6 @@ function connectYanuxIpsServer(config, beaconScanner) {
     client.configure(socketio(socket));
     client.configure(auth());
 
-    const beaconsService = client.service('beacons');
-
     client.authenticate({
         strategy: 'yanux',
         accessToken: config.access_token,
@@ -169,6 +167,9 @@ function connectYanuxIpsServer(config, beaconScanner) {
     }).then(user => {
         client.set('user', user);
         console.log('User', client.get('user'));
+        const devicesService = client.service('devices');
+        const beaconsService = client.service('beacons');
+        const eventsService = client.service('events');
         /**
          * Server-side events
          */
@@ -183,6 +184,12 @@ function connectYanuxIpsServer(config, beaconScanner) {
                 console.log('Event Beacon Removed', beacon)
             });
         */
+        devicesService.patch(null, {
+            deviceUuid: config.device_uuid,
+            status: "online"
+        }, { query: { deviceUuid: config.device_uuid } })
+            .then(devices => console.log('Devices:', devices))
+            .catch(e => console.log(e));
         /**
          * TODO: Perhaps I should implement server-side logic to try to enforce
          * that the timestamps of the submitted beacon detection events increase
@@ -191,7 +198,7 @@ function connectYanuxIpsServer(config, beaconScanner) {
         beaconScanner.on('beaconCreated', beacon => {
             beaconsService.create({
                 user: user._id,
-                deviceId: config.device_id,
+                deviceUuid: config.device_uuid,
                 beaconKey: beacon.key,
                 beacon: beacon
             }).then(beacon => {
@@ -205,7 +212,7 @@ function connectYanuxIpsServer(config, beaconScanner) {
                 { beacon: beacon }, {
                     query: {
                         user: user._id,
-                        deviceId: config.device_id,
+                        deviceUuid: config.device_uuid,
                         beaconKey: beacon.key
                     }
                 }).then(beacons => {
@@ -218,7 +225,7 @@ function connectYanuxIpsServer(config, beaconScanner) {
             beaconsService.remove(null, {
                 query: {
                     user: user._id,
-                    deviceId: config.device_id,
+                    deviceUuid: config.device_uuid,
                     beaconKey: beacon.key
                 }
             }).then(beacons => {
@@ -227,7 +234,6 @@ function connectYanuxIpsServer(config, beaconScanner) {
                 console.log(e);
             });
         });
-        const eventsService = client.service('events');
         eventsService.on('proxemics', proxemics => {
             console.log('--> Proxemics: ', proxemics)
         });
