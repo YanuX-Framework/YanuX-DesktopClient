@@ -8,13 +8,9 @@ const express = require('express');
 const request = require('request');
 const uuidv1 = require('uuid/v1');
 
-const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
-const BeaconScanner = require('./src/Scanner').BeaconScanner;
-const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
-
 const DEFAULT_CONFIG_PATH = './config.json';
 const DEFAULT_CONFIG_STRINGIFY_SPACES = 4;
-const DEFAULT_BEACON_ADVERTISER_PARAMETERS = ['113069ec6e644bd36810de01b36e8a3e', 100, 100]
+const DEFAULT_BEACON_ADVERTISER_PARAMETERS = ['113069ec6e644bd36810de01b36e8a3e', 100, 100];
 const DEFAULT_BEACON_MATCHER_PARAMETERS = [null, 'iBeacon', ['113069EC-6E64-4BD3-6810-DE01B36E8A3E']];
 const DEFAULT_BEACONS_PRINT_UPDATED = false;
 const DEFAULT_BEACONS_PRINT_CLEARED = false;
@@ -124,9 +120,15 @@ function bluetoothLe(
     beaconsRefreshInterval = DEFAULT_BEACONS_REFRESH_INTERVAL,
     beaconsInactivityTimer = DEFAULT_BEACONS_INACTIVITY_TIMER) {
 
-    beaconAdvertiserParameters.unshift(null);
-    const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
-    ibeacon_advertiser.startAdvertising(errorCallback);
+    const BeaconScanner = require('./src/Scanner').BeaconScanner;
+    const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
+
+    if (_.isArray(beaconAdvertiserParameters)) {
+        const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
+        beaconAdvertiserParameters.unshift(null);
+        const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
+        ibeacon_advertiser.startAdvertising(errorCallback);
+    }
 
     const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
     beaconMatcherParameters.unshift(null);
@@ -167,49 +169,44 @@ function connectYanuxIpsServer(config, beaconScanner) {
     }).then(user => {
         client.set('user', user);
         console.log('User', client.get('user'));
-        const devicesService = client.service('devices');
         const beaconsService = client.service('beacons');
-        const eventsService = client.service('events');
         /**
          * Server-side events
          */
         /*
-            beaconsService.on('created', beacon => {
-                console.log('Event Beacon Created', beacon)
-            });
-            beaconsService.on('patched', beacon => {
-                console.log('Event Beacon Patched', beacon)
-            });
-            beaconsService.on('removed', beacon => {
-                console.log('Event Beacon Removed', beacon)
-            });
-        */
-        devicesService.patch(null, {
-            deviceUuid: config.device_uuid,
-            status: "online"
-        }, { query: { deviceUuid: config.device_uuid } })
-            .then(devices => console.log('Devices:', devices))
-            .catch(e => console.log(e));
-        /**
-         * TODO: Perhaps I should implement server-side logic to try to enforce
-         * that the timestamps of the submitted beacon detection events increase
-         * monotonically.
-         */
-        beaconScanner.on('beaconCreated', beacon => {
-            beaconsService.create({
-                user: user._id,
-                deviceUuid: config.device_uuid,
-                beaconKey: beacon.key,
-                beacon: beacon
-            }).then(beacon => {
-                console.log('Beacon Created:', beacon);
-            }).catch(e => {
-                console.log(e);
-            })
+        beaconsService.on('created', beacon => {
+            console.log('Event Beacon Created', beacon)
         });
-        beaconScanner.on('beaconUpdated', beacon => {
-            beaconsService.patch(null,
-                { beacon: beacon }, {
+        beaconsService.on('patched', beacon => {
+            console.log('Event Beacon Patched', beacon)
+        });
+        beaconsService.on('removed', beacon => {
+            console.log('Event Beacon Removed', beacon)
+        });
+        */
+        const tidyUpBeacons = () => {
+            return beaconsService
+                .remove(null, { query: { deviceUuid: config.device_uuid } })
+                .then(beacons => console.log('Removing any outstanding beacons:', beacons));
+        }
+        tidyUpBeacons().then(() => {
+            /**
+             * NOTE: Should I use the deviceUuid or the device's ObjectId as the
+             * reference key for detected beacons? I'd say that it doesn't matter
+             * much, but I maybe I'm missing something! 
+             */
+            beaconScanner.on('beaconCreated', beacon => {
+                beaconsService.create({
+                    user: user._id,
+                    deviceUuid: config.device_uuid,
+                    beaconKey: beacon.key,
+                    beacon: beacon
+                }).then(beacon => {
+                    console.log('Beacon Created:', beacon);
+                }).catch(e => console.error(e));
+            });
+            beaconScanner.on('beaconUpdated', beacon => {
+                beaconsService.patch(null, { beacon: beacon }, {
                     query: {
                         user: user._id,
                         deviceUuid: config.device_uuid,
@@ -217,29 +214,48 @@ function connectYanuxIpsServer(config, beaconScanner) {
                     }
                 }).then(beacons => {
                     console.log('Beacons Patched:', beacons);
-                }).catch(e => {
-                    console.log(e);
-                });
-        });
-        beaconScanner.on('beaconRemoved', beacon => {
-            beaconsService.remove(null, {
-                query: {
-                    user: user._id,
-                    deviceUuid: config.device_uuid,
-                    beaconKey: beacon.key
-                }
-            }).then(beacons => {
-                console.log('Beacons Removed:', beacons);
-            }).catch(e => {
-                console.log(e);
+                }).catch(e => console.error(e));
             });
-        });
-        eventsService.on('proxemics', proxemics => {
-            console.log('--> Proxemics: ', proxemics)
-        });
-    }).catch(e => {
-        console.error('Authentication Error', e);
-    });
+            beaconScanner.on('beaconRemoved', beacon => {
+                beaconsService.remove(null, {
+                    query: {
+                        user: user._id,
+                        deviceUuid: config.device_uuid,
+                        beaconKey: beacon.key
+                    }
+                }).then(beacons => {
+                    console.log('Beacons Removed:', beacons);
+                }).catch(e => console.error(e));
+            });
+            const devicesService = client.service('devices');
+            devicesService.patch(null, {
+                deviceUuid: config.device_uuid,
+                status: "online"
+            }, { query: { deviceUuid: config.device_uuid } })
+                .then(devices => console.log('Devices:', devices))
+                .catch(e => console.error(e));
+            process.on('SIGINT', () => {
+                devicesService.patch(null, {
+                    deviceUuid: config.device_uuid,
+                    status: "offline"
+                }, { query: { deviceUuid: config.device_uuid } })
+                    .then(devices => {
+                        console.log('Devices:', devices);
+                        return tidyUpBeacons();
+                    }).then(() => process.exit()).catch(e => { console.error(e); process.exit(); });
+            });
+            /** 
+             * TODO:
+             * Remove this! I don't need to listen to proxemic events here.
+             * It is up to each application/YanuX Coordinator implementation
+             * to do it. 
+             */
+            const eventsService = client.service('events');
+            eventsService.on('proxemics', proxemics => {
+                console.log('[[[ Proxemics ]]]:\n', proxemics)
+            });
+        }).catch(e => console.error(e));
+    }).catch(e => console.error('Authentication Error', e));
 }
 
 function initHttpServer(configPath, config, beaconScanner) {
