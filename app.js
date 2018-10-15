@@ -227,23 +227,7 @@ function connectYanuxIpsServer(config, beaconScanner) {
                     console.log('Beacons Removed:', beacons);
                 }).catch(e => console.error(e));
             });
-            const devicesService = client.service('devices');
-            devicesService.patch(null, {
-                deviceUuid: config.device_uuid,
-                status: "online"
-            }, { query: { deviceUuid: config.device_uuid } })
-                .then(devices => console.log('Devices:', devices))
-                .catch(e => console.error(e));
-            process.on('SIGINT', () => {
-                devicesService.patch(null, {
-                    deviceUuid: config.device_uuid,
-                    status: "offline"
-                }, { query: { deviceUuid: config.device_uuid } })
-                    .then(devices => {
-                        console.log('Devices:', devices);
-                        return tidyUpBeacons();
-                    }).then(() => process.exit()).catch(e => { console.error(e); process.exit(); });
-            });
+
             /** 
              * TODO:
              * Remove this! I don't need to listen to proxemic events here.
@@ -260,7 +244,12 @@ function connectYanuxIpsServer(config, beaconScanner) {
 
 function initHttpServer(configPath, config, beaconScanner) {
     const app = express();
-    app.listen(config.http_port, () => console.log(`Started YanuX IPS Desktop Client HTTP Server on port ${config.http_port}!`))
+    app.listen(config.http_port, () => console.log(`Started YanuX IPS Desktop Client HTTP Server on port ${config.http_port}!`));
+    /** TODO: Refine the CORS policy! */
+    app.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        next();
+    });
     app.get('/', (req, res) => {
         if (req.query.code) {
             request.post({
@@ -294,6 +283,10 @@ function initHttpServer(configPath, config, beaconScanner) {
             res.write('It was not possible retrieve the Access and Refresh Tokens. Please try again later.');
             res.end();
         }
+    });
+    app.get('/deviceInfo', (req, res) => {
+        res.json({ deviceUuid: config.device_uuid });
+        res.end();
     });
 }
 
