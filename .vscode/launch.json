@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug YanuX Desktop Client",
+            "name": "Debug YanuX IPS Desktop Client",
             "program": "${workspaceFolder}/app.js",
             "outputCapture": "std"
         }

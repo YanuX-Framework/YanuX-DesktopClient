@@ -1,5 +1,7 @@
 /**
- * NOTE:
+ * NOTES:
+ * - I feel that the scope of this project is stretching. Perhaps I may end up splitting it into smaller parts,
+ * or otherwise I will also incorporate the YanuX Orchestrator into it.
  * - Some of my code for Beacon Scanning was inspired by: https://github.com/futomi/node-beacon-scanner
  */
 const fs = require('fs');
@@ -10,8 +12,8 @@ const uuidv1 = require('uuid/v1');
 
 const DEFAULT_CONFIG_PATH = './config.json';
 const DEFAULT_CONFIG_STRINGIFY_SPACES = 4;
-const DEFAULT_BEACON_ADVERTISER_PARAMETERS = ['113069ec6e644bd36810de01b36e8a3e', 100, 100];
-const DEFAULT_BEACON_MATCHER_PARAMETERS = [null, 'iBeacon', ['113069EC-6E64-4BD3-6810-DE01B36E8A3E']];
+const DEFAULT_BEACON_MATCHER_PARAMETERS = null;//[null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]];
+const DEFAULT_BEACON_ADVERTISER_PARAMETERS = null//["113069ec6e644bd36810de01b36e8a3e", 100, 100];
 const DEFAULT_BEACONS_PRINT_UPDATED = false;
 const DEFAULT_BEACONS_PRINT_CLEARED = false;
 const DEFAULT_BEACONS_CLEAR_CONSOLE = false;
@@ -60,30 +62,30 @@ function validateConfig(config, path) {
         throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
     }
     if (!_.isNil(config.beacon_advertiser_parameters)
-        && !_.isArray(config.beacon_advertiser_parameters)
-        && !_.isEmpty(config.beacon_advertiser_parameters)) {
+        && !(_.isArray(config.beacon_advertiser_parameters)
+            && (config.beacon_advertiser_parameters.length === 0 ||
+                config.beacon_advertiser_parameters.length === 3))) {
         throw new Error('"beacon_advertiser_parameters" value is invalid');
     }
-    if (!_.isNil(config.beacon_matcher_parameters)
-        && !_.isArray(config.beacon_matcher_parameters)
-        && !_.isEmpty(config.beacon_matcher_parameters)) {
+    if (!_.isNil(config.beacon_matcher_parameters) &&
+        !_.isArray(config.beacon_matcher_parameters)) {
         throw new Error('"beacon_matcher_parameters" value is invalid');
     }
-    if (!_.isNil(config.beacons_print_updated)
-        && !_.isBoolean(config.beacons_print_updated)) {
+    if (!_.isNil(config.beacons_print_updated) &&
+        !_.isBoolean(config.beacons_print_updated)) {
         throw new Error('"beacons_print_updated" value is invalid');
     }
-    if (!_.isNil(config.beacons_print_cleared)
-        && !_.isBoolean(config.beacons_print_cleared)) {
+    if (!_.isNil(config.beacons_print_cleared) &&
+        !_.isBoolean(config.beacons_print_cleared)) {
         throw new Error('"beacons_print_cleared" value is invalid');
     }
-    if (!_.isNil(config.beacons_clear_console)
-        && !_.isBoolean(config.beacons_clear_console)) {
+    if (!_.isNil(config.beacons_clear_console) &&
+        !_.isBoolean(config.beacons_clear_console)) {
         throw new Error('"beacons_clear_console" value is invalid');
     }
-    if (!_.isNil(config.beacons_refresh_interval)
-        && !_.isFinite(config.beacons_refresh_interval)
-        && config.beacons_refresh_interval < 0) {
+    if (!_.isNil(config.beacons_refresh_interval) &&
+        !_.isFinite(config.beacons_refresh_interval) &&
+        config.beacons_refresh_interval < 0) {
         throw new Error('"beacons_refresh_interval" value is invalid');
     }
     if (!_.isNil(config.beacons_inactivity_timer)
@@ -104,10 +106,8 @@ function validateConfig(config, path) {
 
 function saveConfig(path, config) {
     fs.writeFile(path, JSON.stringify(config, null, DEFAULT_CONFIG_STRINGIFY_SPACES),
-        function (err) {
-            if (err) {
-                throw err;
-            }
+        err => {
+            if (err) { throw err; }
         });
 }
 
@@ -123,28 +123,32 @@ function bluetoothLe(
     const BeaconScanner = require('./src/Scanner').BeaconScanner;
     const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
 
-    if (_.isArray(beaconAdvertiserParameters)) {
+    if (_.isArray(beaconAdvertiserParameters)
+        && beaconAdvertiserParameters.length === 3) {
         const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
+        beaconAdvertiserParameters = beaconAdvertiserParameters.slice(0)
         beaconAdvertiserParameters.unshift(null);
         const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
         ibeacon_advertiser.startAdvertising(errorCallback);
     }
+    if (_.isArray(beaconMatcherParameters)) {
+        const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
+        beaconMatcherParameters = beaconMatcherParameters.slice(0);
+        beaconMatcherParameters.unshift(null);
+        beacon_scanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, beaconMatcherParameters)));
 
-    const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
-    beaconMatcherParameters.unshift(null);
-    beacon_scanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, beaconMatcherParameters)));
-
-    if (beaconsPrintUpdated) {
-        beacon_scanner.on('beaconsUpdated', printBeacons('beaconsUpdated', beaconsClearConsole));
+        if (beaconsPrintUpdated) {
+            beacon_scanner.on('beaconsUpdated', printBeacons('beaconsUpdated', beaconsClearConsole));
+        }
+        if (beaconsPrintCleared) {
+            beacon_scanner.on('beaconsCleared', printBeacons('beaconsCleared', beaconsClearConsole));
+        }
+        beacon_scanner.startScanning(errorCallback);
+        return beacon_scanner;
     }
-    if (beaconsPrintCleared) {
-        beacon_scanner.on('beaconsCleared', printBeacons('beaconsCleared', beaconsClearConsole));
-    }
-    beacon_scanner.startScanning(errorCallback);
-    return beacon_scanner;
 }
 
-function connectYanuxIpsServer(config, beaconScanner) {
+function connectToBroker(config, beaconScanner) {
     const io = require('socket.io-client');
     const feathers = require('@feathersjs/feathers');
     const socketio = require('@feathersjs/socketio-client');
@@ -189,55 +193,74 @@ function connectYanuxIpsServer(config, beaconScanner) {
                 .remove(null, { query: { deviceUuid: config.device_uuid } })
                 .then(beacons => console.log('Removing any outstanding beacons:', beacons));
         }
+        process.on('SIGINT', () => {
+            tidyUpBeacons()
+                .then(() => process.exit())
+                .catch(e => {
+                    console.error(e);
+                    process.exit();
+                });
+        });
         tidyUpBeacons().then(() => {
             /**
              * NOTE: Should I use the deviceUuid or the device's ObjectId as the
              * reference key for detected beacons? I'd say that it doesn't matter
              * much, but I maybe I'm missing something! 
              */
-            beaconScanner.on('beaconCreated', beacon => {
-                beaconsService.create({
-                    user: user._id,
-                    deviceUuid: config.device_uuid,
-                    beaconKey: beacon.key,
-                    beacon: beacon
-                }).then(beacon => {
-                    console.log('Beacon Created:', beacon);
-                }).catch(e => console.error(e));
-            });
-            beaconScanner.on('beaconUpdated', beacon => {
-                beaconsService.patch(null, { beacon: beacon }, {
-                    query: {
+            if (beaconScanner) {
+                beaconScanner.on('beaconCreated', beacon => {
+                    beaconsService.create({
                         user: user._id,
                         deviceUuid: config.device_uuid,
-                        beaconKey: beacon.key
-                    }
-                }).then(beacons => {
-                    console.log('Beacons Patched:', beacons);
-                }).catch(e => console.error(e));
-            });
-            beaconScanner.on('beaconRemoved', beacon => {
-                beaconsService.remove(null, {
-                    query: {
-                        user: user._id,
-                        deviceUuid: config.device_uuid,
-                        beaconKey: beacon.key
-                    }
-                }).then(beacons => {
-                    console.log('Beacons Removed:', beacons);
-                }).catch(e => console.error(e));
-            });
-
+                        beaconKey: beacon.key,
+                        beacon: beacon
+                    }).then(beacon => {
+                        console.log('Beacon Created:', beacon);
+                    }).catch(e => console.error(e));
+                });
+                beaconScanner.on('beaconUpdated', beacon => {
+                    beaconsService.patch(null, { beacon: beacon }, {
+                        query: {
+                            user: user._id,
+                            deviceUuid: config.device_uuid,
+                            beaconKey: beacon.key
+                        }
+                    }).then(beacons => {
+                        console.log('Beacons Patched:', beacons);
+                    }).catch(e => console.error(e));
+                });
+                beaconScanner.on('beaconRemoved', beacon => {
+                    beaconsService.remove(null, {
+                        query: {
+                            user: user._id,
+                            deviceUuid: config.device_uuid,
+                            beaconKey: beacon.key
+                        }
+                    }).then(beacons => {
+                        console.log('Beacons Removed:', beacons);
+                    }).catch(e => console.error(e));
+                });
+            }
             /** 
              * TODO:
              * Remove this! I don't need to listen to proxemic events here.
              * It is up to each application/YanuX Coordinator implementation
              * to do it. 
              */
+            /*
             const eventsService = client.service('events');
             eventsService.on('proxemics', proxemics => {
                 console.log('[[[ Proxemics ]]]:\n', proxemics)
             });
+            */
+            const devicesService = client.service('devices');
+            const beaconIdValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
+            return devicesService.patch(null, {
+                deviceUuid: config.device_uuid,
+                beaconIdValues: beaconIdValues ? beaconIdValues : []
+            }, { query: { deviceUuid: config.device_uuid } });
+        }).then(devices => {
+            console.log('Devices:', devices);
         }).catch(e => console.error(e));
     }).catch(e => console.error('Authentication Error', e));
 }
@@ -250,6 +273,11 @@ function initHttpServer(configPath, config, beaconScanner) {
         res.header("Access-Control-Allow-Origin", "*");
         next();
     });
+    /** 
+     * NOTE: 
+     * Perhaps the device UUID generator and webserver could be placed on a separate component.
+     ** I'm still not sure! **
+     */
     app.get('/', (req, res) => {
         if (req.query.code) {
             request.post({
@@ -272,7 +300,7 @@ function initHttpServer(configPath, config, beaconScanner) {
                     config.access_token = body.access_token;
                     config.refresh_token = body.refresh_token;
                     saveConfig(configPath, config);
-                    connectYanuxIpsServer(config, beaconScanner);
+                    connectToBroker(config, beaconScanner);
                 } else {
                     res.write('The following error has occurred:\n');
                     res.write(JSON.stringify(body, null, DEFAULT_CONFIG_STRINGIFY_SPACES));
@@ -307,7 +335,7 @@ function main() {
                 config.beacons_refresh_interval || DEFAULT_BEACONS_REFRESH_INTERVAL,
                 config.beacons_inactivity_timer || DEFAULT_BEACONS_INACTIVITY_TIMER);
             if (_.isString(config.access_token)) {
-                connectYanuxIpsServer(config, beaconScanner);
+                connectToBroker(config, beaconScanner);
             }
             initHttpServer(configPath, config, beaconScanner);
         });
