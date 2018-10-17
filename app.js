@@ -241,23 +241,17 @@ function connectToBroker(config, beaconScanner) {
                     }).catch(e => console.error(e));
                 });
             }
-            /** 
-             * TODO:
-             * Remove this! I don't need to listen to proxemic events here.
-             * It is up to each application/YanuX Coordinator implementation
-             * to do it. 
-             */
-            /*
-            const eventsService = client.service('events');
-            eventsService.on('proxemics', proxemics => {
-                console.log('[[[ Proxemics ]]]:\n', proxemics)
-            });
-            */
+
             const devicesService = client.service('devices');
-            const beaconIdValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
+            const beaconValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
             return devicesService.patch(null, {
                 deviceUuid: config.device_uuid,
-                beaconIdValues: beaconIdValues ? beaconIdValues : []
+                beaconValues: beaconValues,
+                /** TODO: Implement a "decent" capabilities schema and allow it to be fully configurable **/
+                capabilities: {
+                    control: true,
+                    output: true,
+                }
             }, { query: { deviceUuid: config.device_uuid } });
         }).then(devices => {
             console.log('Devices:', devices);
