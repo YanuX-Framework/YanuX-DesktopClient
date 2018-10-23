@@ -4,14 +4,11 @@
  * or otherwise I will also incorporate the YanuX Orchestrator into it.
  * - Some of my code for Beacon Scanning was inspired by: https://github.com/futomi/node-beacon-scanner
  */
-const fs = require('fs');
-const _ = require('lodash');
-const express = require('express');
-const request = require('request');
-const uuidv1 = require('uuid/v1');
 
 const DEFAULT_CONFIG_PATH = './config.json';
 const DEFAULT_CONFIG_STRINGIFY_SPACES = 4;
+const DEFAULT_BEACON_SCAN = false;
+const DEFAULT_BEACON_ADVERTISE = false;
 const DEFAULT_BEACON_MATCHER_PARAMETERS = null;//[null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]];
 const DEFAULT_BEACON_ADVERTISER_PARAMETERS = null//["113069ec6e644bd36810de01b36e8a3e", 100, 100];
 const DEFAULT_BEACONS_PRINT_UPDATED = false;
@@ -19,6 +16,12 @@ const DEFAULT_BEACONS_PRINT_CLEARED = false;
 const DEFAULT_BEACONS_CLEAR_CONSOLE = false;
 const DEFAULT_BEACONS_REFRESH_INTERVAL = 500;
 const DEFAULT_BEACONS_INACTIVITY_TIMER = 1000;
+
+const fs = require('fs');
+const _ = require('lodash');
+const express = require('express');
+const request = require('request');
+const uuidv1 = require('uuid/v1');
 
 function clearConsole() {
     return process.stdout.write('\033c');
@@ -61,6 +64,14 @@ function validateConfig(config, path) {
     if (!_.isString(config.oauth2_authorization_server_url)) {
         throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
     }
+    if (!_.isNil(config.beacon_scan) &&
+        !_.isBoolean(config.beacon_scan)) {
+        throw new Error('"beacon_scan" value is invalid');
+    }
+    if (!_.isNil(config.beacon_advertise) &&
+        !_.isBoolean(config.beacon_advertise)) {
+        throw new Error('"beacon_advertise" value is invalid');
+    }
     if (!_.isNil(config.beacon_advertiser_parameters)
         && !(_.isArray(config.beacon_advertiser_parameters)
             && (config.beacon_advertiser_parameters.length === 0 ||
@@ -94,7 +105,7 @@ function validateConfig(config, path) {
         throw new Error('"beacons_inactivity_timer" value is invalid');
     }
     if (_.isNil(config.access_token)) {
-        console.log(`Go to http://localhost:3001/oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=http://localhost:3002 and authorize the application.`);
+        console.log(`Go to ${config.oauth2_authorization_server_url}oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=${config.redirect_uri} and authorize the application.`);
     }
     if (_.isNil(config.device_uuid)) {
         console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
@@ -112,6 +123,8 @@ function saveConfig(path, config) {
 }
 
 function bluetoothLe(
+    beaconScan = DEFAULT_BEACON_SCAN,
+    beaconAdvertise = DEFAULT_BEACON_ADVERTISE,
     beaconAdvertiserParameters = DEFAULT_BEACON_ADVERTISER_PARAMETERS,
     beaconMatcherParameters = DEFAULT_BEACON_MATCHER_PARAMETERS,
     beaconsPrintUpdated = DEFAULT_BEACONS_PRINT_UPDATED,
@@ -119,19 +132,16 @@ function bluetoothLe(
     beaconsClearConsole = DEFAULT_BEACONS_CLEAR_CONSOLE,
     beaconsRefreshInterval = DEFAULT_BEACONS_REFRESH_INTERVAL,
     beaconsInactivityTimer = DEFAULT_BEACONS_INACTIVITY_TIMER) {
-
-    const BeaconScanner = require('./src/Scanner').BeaconScanner;
-    const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
-
-    if (_.isArray(beaconAdvertiserParameters)
-        && beaconAdvertiserParameters.length === 3) {
+    if (beaconAdvertise && _.isArray(beaconAdvertiserParameters) && beaconAdvertiserParameters.length === 3) {
         const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
         beaconAdvertiserParameters = beaconAdvertiserParameters.slice(0)
         beaconAdvertiserParameters.unshift(null);
         const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
         ibeacon_advertiser.startAdvertising(errorCallback);
     }
-    if (_.isArray(beaconMatcherParameters)) {
+    if (beaconScan && _.isArray(beaconMatcherParameters)) {
+        const BeaconScanner = require('./src/Scanner').BeaconScanner;
+        const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
         const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
         beaconMatcherParameters = beaconMatcherParameters.slice(0);
         beaconMatcherParameters.unshift(null);
@@ -249,9 +259,10 @@ function connectToBroker(config, beaconScanner) {
                 beaconValues: beaconValues,
                 /** TODO: Implement a "decent" capabilities schema and allow it to be fully configurable **/
                 capabilities: {
+                    view: true,
                     control: true,
-                    output: true,
-                }
+                },
+                seenBy: []
             }, { query: { deviceUuid: config.device_uuid } });
         }).then(devices => {
             console.log('Devices:', devices);
@@ -275,7 +286,7 @@ function initHttpServer(configPath, config, beaconScanner) {
     app.get('/', (req, res) => {
         if (req.query.code) {
             request.post({
-                url: config.oauth2_authorization_server_url + '/oauth2/token',
+                url: config.oauth2_authorization_server_url + 'oauth2/token',
                 auth: {
                     user: config.client_id,
                     pass: config.client_secret,
@@ -313,7 +324,15 @@ function initHttpServer(configPath, config, beaconScanner) {
 }
 
 function main() {
-    const configPath = DEFAULT_CONFIG_PATH;
+    const argv = require('yargs').option('config', {
+        alias: 'c',
+        demandOption: true,
+        default: DEFAULT_CONFIG_PATH,
+        describe: 'Config file path',
+        type: 'string'
+    }).argv;
+
+    const configPath = argv.config;
     fs.readFile(configPath,
         function (err, data) {
             if (err) {
@@ -321,6 +340,8 @@ function main() {
             }
             const config = validateConfig(JSON.parse(data), configPath);
             const beaconScanner = bluetoothLe(
+                config.beacon_scan || DEFAULT_BEACON_SCAN,
+                config.beacon_advertise || DEFAULT_BEACON_ADVERTISE,
                 config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS,
                 config.beacon_matcher_parameters || DEFAULT_BEACON_MATCHER_PARAMETERS,
                 config.beacons_print_updated || DEFAULT_BEACONS_PRINT_UPDATED,
