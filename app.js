@@ -166,108 +166,131 @@ function connectToBroker(config, beaconScanner) {
 
     const socket = io(config.ips_server_url);
     const client = feathers();
+    let jwtAccessToken = null;
 
     client.configure(socketio(socket));
     client.configure(auth());
 
-    client.authenticate({
-        strategy: 'yanux',
-        accessToken: config.access_token,
-        clientId: config.client_id
-    }).then(response => {
-        console.log('Logged in successfully with the following JWT: ' + response.accessToken);
-        return client.passport.verifyJWT(response.accessToken);
-    }).then(payload => {
-        console.log('JWT Payload', payload);
-        return client.service('users').get(payload.userId);
-    }).then(user => {
-        client.set('user', user);
-        console.log('User', client.get('user'));
-        const beaconsService = client.service('beacons');
-        /**
-         * Server-side events
-         */
-        /*
-        beaconsService.on('created', beacon => {
-            console.log('Event Beacon Created', beacon)
-        });
-        beaconsService.on('patched', beacon => {
-            console.log('Event Beacon Patched', beacon)
-        });
-        beaconsService.on('removed', beacon => {
-            console.log('Event Beacon Removed', beacon)
-        });
-        */
-        const tidyUpBeacons = () => {
-            return beaconsService
-                .remove(null, { query: { deviceUuid: config.device_uuid } })
-                .then(beacons => console.log('Removing any outstanding beacons:', beacons));
-        }
-        process.on('SIGINT', () => {
-            tidyUpBeacons()
-                .then(() => process.exit())
-                .catch(e => {
-                    console.error(e);
-                    process.exit();
-                });
-        });
-        tidyUpBeacons().then(() => {
-            /**
-             * NOTE: Should I use the deviceUuid or the device's ObjectId as the
-             * reference key for detected beacons? I'd say that it doesn't matter
-             * much, but I maybe I'm missing something! 
-             */
-            if (beaconScanner) {
-                beaconScanner.on('beaconCreated', beacon => {
-                    beaconsService.create({
-                        user: user._id,
-                        deviceUuid: config.device_uuid,
-                        beaconKey: beacon.key,
-                        beacon: beacon
-                    }).then(beacon => {
-                        console.log('Beacon Created:', beacon);
-                    }).catch(e => console.error(e));
-                });
-                beaconScanner.on('beaconUpdated', beacon => {
-                    beaconsService.patch(null, { beacon: beacon }, {
-                        query: {
-                            user: user._id,
-                            deviceUuid: config.device_uuid,
-                            beaconKey: beacon.key
-                        }
-                    }).then(beacons => {
-                        console.log('Beacons Patched:', beacons);
-                    }).catch(e => console.error(e));
-                });
-                beaconScanner.on('beaconRemoved', beacon => {
-                    beaconsService.remove(null, {
-                        query: {
-                            user: user._id,
-                            deviceUuid: config.device_uuid,
-                            beaconKey: beacon.key
-                        }
-                    }).then(beacons => {
-                        console.log('Beacons Removed:', beacons);
-                    }).catch(e => console.error(e));
-                });
+    const authenticate = () => {
+        let credentials;
+        if (!jwtAccessToken) {
+            credentials = {
+                strategy: 'yanux',
+                accessToken: config.access_token,
+                clientId: config.client_id
             }
-
-            const devicesService = client.service('devices');
-            const beaconValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
-            return devicesService.patch(null, {
-                deviceUuid: config.device_uuid,
-                beaconValues: beaconValues,
-                /** TODO: Implement a "decent" capabilities schema and allow it to be fully configurable **/
-                capabilities: {
-                    view: true,
-                    control: true,
-                },
-                seenBy: []
-            }, { query: { deviceUuid: config.device_uuid } });
-        }).then(devices => {
-            console.log('Devices:', devices);
-        }).catch(e => console.error(e));
-    }).catch(e => console.error('Authentication Error', e));
+        } else {
+            credentials = {
+                strategy: 'jwt',
+                accessToken: jwtAccessToken,
+            }
+        }
+        client.authenticate(credentials)
+            .then(response => {
+                jwtAccessToken = response.accessToken;
+                console.log('Logged in successfully with the following JWT: ' + response.accessToken);
+                return client.passport.verifyJWT(response.accessToken);
+            }).then(payload => {
+                console.log('JWT Payload', payload);
+                return client.service('users').get(payload.userId);
+            }).then(user => {
+                client.set('user', user);
+                console.log('User', client.get('user'));
+                const beaconsService = client.service('beacons');
+                /**
+                 * Server-side events
+                 */
+                /*
+                beaconsService.on('created', beacon => {
+                    console.log('Event Beacon Created', beacon)
+                });
+                beaconsService.on('patched', beacon => {
+                    console.log('Event Beacon Patched', beacon)
+                });
+                beaconsService.on('removed', beacon => {
+                    console.log('Event Beacon Removed', beacon)
+                });
+                */
+                const tidyUpBeacons = () => {
+                    return beaconsService
+                        .remove(null, { query: { deviceUuid: config.device_uuid } })
+                        .then(beacons => console.log('Removing any outstanding beacons:', beacons));
+                }
+                process.on('SIGINT', () => {
+                    tidyUpBeacons()
+                        .then(() => process.exit())
+                        .catch(e => {
+                            console.error(e);
+                            process.exit();
+                        });
+                });
+                tidyUpBeacons().then(() => {
+                    /**
+                     * NOTE: Should I use the deviceUuid or the device's ObjectId as the
+                     * reference key for detected beacons? I'd say that it doesn't matter
+                     * much, but I maybe I'm missing something! 
+                     */
+                    if (beaconScanner) {
+                        beaconScanner.on('beaconCreated', beacon => {
+                            beaconsService.create({
+                                user: user._id,
+                                deviceUuid: config.device_uuid,
+                                beaconKey: beacon.key,
+                                beacon: beacon
+                            }).then(beacon => {
+                                console.log('Beacon Created:', beacon);
+                            }).catch(e => console.error(e));
+                        });
+                        beaconScanner.on('beaconUpdated', beacon => {
+                            beaconsService.patch(null, { beacon: beacon }, {
+                                query: {
+                                    user: user._id,
+                                    deviceUuid: config.device_uuid,
+                                    beaconKey: beacon.key
+                                }
+                            }).then(beacons => {
+                                console.log('Beacons Patched:', beacons);
+                            }).catch(e => console.error(e));
+                        });
+                        beaconScanner.on('beaconRemoved', beacon => {
+                            beaconsService.remove(null, {
+                                query: {
+                                    user: user._id,
+                                    deviceUuid: config.device_uuid,
+                                    beaconKey: beacon.key
+                                }
+                            }).then(beacons => {
+                                console.log('Beacons Removed:', beacons);
+                            }).catch(e => console.error(e));
+                        });
+                    }
+                    const devicesService = client.service('devices');
+                    const beaconValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
+                    return devicesService.patch(null, {
+                        deviceUuid: config.device_uuid,
+                        beaconValues: beaconValues,
+                        /** TODO: Implement a "decent" capabilities schema and allow it to be fully configurable **/
+                        capabilities: {
+                            view: true,
+                            control: true,
+                        }
+                    }, { query: { deviceUuid: config.device_uuid } });
+                }).then(devices => {
+                    console.log('Devices:', devices);
+                }).catch(e => console.error(e));
+            }).catch(e => console.error('Authentication Error', e));
+    }
+    /** TODO: Port the re-authentication logic to YanuX Coordinator */
+    authenticate();
+    client.io.on('reconnect', attempt => {
+        console.log(`Reconnected after ${attempt} attempts`);
+        authenticate();
+    })
+    client.on('reauthentication-error', err => {
+        console.error(err);
+        jwtAccessToken = null;
+        authenticate();
+    });
 }
 
 function initHttpServer(configPath, config, beaconScanner) {
