@@ -225,12 +225,9 @@ function connectToBroker(config, beaconScanner) {
                         });
                 });
                 tidyUpBeacons().then(() => {
-                    /**
-                     * NOTE: Should I use the deviceUuid or the device's ObjectId as the
-                     * reference key for detected beacons? I'd say that it doesn't matter
-                     * much, but I maybe I'm missing something! 
-                     */
                     if (beaconScanner) {
+                        beaconScanner.removeAllListeners();
+                        beaconScanner.beacons.length = 0;
                         beaconScanner.on('beaconCreated', beacon => {
                             beaconsService.create({
                                 user: user._id,
