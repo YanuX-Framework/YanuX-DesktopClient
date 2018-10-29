@@ -112,6 +112,9 @@ function validateConfig(config, path) {
         config.device_uuid = uuidv1();
         saveConfig(path, config);
     }
+    if (!_.isObject(config.device_capabilities)) {
+        throw new Error('"device_capabilities" value is either missing or invalid');
+    }
     return config;
 }
 
@@ -266,11 +269,7 @@ function connectToBroker(config, beaconScanner) {
                     return devicesService.patch(null, {
                         deviceUuid: config.device_uuid,
                         beaconValues: beaconValues,
-                        /** TODO: Implement a "decent" capabilities schema and allow it to be fully configurable **/
-                        capabilities: {
-                            view: true,
-                            control: true,
-                        }
+                        capabilities: config.device_capabilities
                     }, { query: { deviceUuid: config.device_uuid } });
                 }).then(devices => {
                     console.log('Devices:', devices);

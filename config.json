@@ -25,6 +25,10 @@
     "beacons_refresh_interval": 500,
     "beacons_inactivity_timer": 1000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
-    "access_token": "lbXKSBbAIdQ97IEXcvWWGLJS7mDCkpWRrencalN1BHo3dj6Yt4dbqCmL6BEjpR5nibf9j6WrsMkyDnXYmg3aPeBLtGGZs90V7cqVF3isHTH7N8rJYYfvUv4IdQoB9iAMQDA5iPWcn3ffKwDJV56isZlGiiHZvfYa2dfGMHhloS4DYSVrGpmFHENgciYND6KdbXDJF8Qju4jzCGu4dssrEkB52LM8EO6BJcirlAhrOhhwFYTHsEQ8ZpviIxK7fILg",
-    "refresh_token": "t4rEakyJE09SwrQ4DUct2TlZ7DCYafwJGlumdDWpOxkc0zixOm0Vs5cc5WLnttAXDBCmG2PUJgE9tA8swVPHUgydsoie37F05TnHxTgrab9DiNVYjkGun5arEgTcqnBBE0Ir1KishmMuLxw9b9pwVzPWsLWQjm77PtGTS6hUfE5C7eDUI4uDRWCMTFkf2EaSo2DYzzVoWwfcFQcPD6AFKtKPYV5mG0HSNOqPI451G1FlxxOu3G4YEMBLhDZTEeEc"
+    "device_capabilities": {
+        "view": true,
+        "control": true
+    },
+    "access_token": "TDN3M4kxTJPlx52u4vbeFpWdtxoZLJvc6lbU8ebhZPCFcTaAa65ygAFdKS7M1JAinmFZpdOpudYQRWAosCiVOgR7GQ7nri3HBLjEky9tDcNJEUzZuWfDifiQAhEjFNO6UpFhFeYfXFjcvZVS0rgs9LppO05hfS9VADcZSdGvZ7cwt7qK9ogjKqyuiCFwccubfbDGM3GPBSxkUQ7THTbdrl5Cs7w8Y7v4eNoIdsrJF60xTI2KARVXqTPwMnXMuw1d",
+    "refresh_token": "xd6vwuR991pVgpVDQhhnXYOj55wXkIoFFdS5vAP1GJiYVOvNLnRNGa1JghR0HqEHsgX6JVgvjTmpHhP9ishezbh0NQVYJScSgrHGJNsVE5BldrDUL9Y3pMPNOFs6oqLcUSoKGXHbkte5Bj7FAAWoUbNRDb4549UKOdB2zmKC2kLOnxppiZjNel30y0VCTonuluXZSmHNEZDQu0QHPb6j00WCtb8DL5AmbhfxB0Pz9ohSS6wLXxZ9ufYrYCwbV0yP"
 }
