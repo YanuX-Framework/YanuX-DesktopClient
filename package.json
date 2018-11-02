@@ -10,6 +10,8 @@
   "license": "GPL-3.0",
   "main": "index.js",
   "scripts": {
+    "node10-install": "MAKEFLAGS=-j1 npm install --build-from-source",
+    "node10-update": "MAKEFLAGS=-j1 npm update --dev --save --build-from-source",
     "execute": "node app.js",
     "start": "npm run watch",
     "watch": "npx nodemon app.js",
@@ -20,6 +22,7 @@
     "@feathersjs/feathers": "^3.2.3",
     "@feathersjs/socketio-client": "^1.1.5",
     "bleno": "^0.5.0",
+    "bluetooth-hci-socket": "git+https://github.com/jrobeson/node-bluetooth-hci-socket.git#fix-builds-for-node-10",
     "express": "^4.16.4",
     "lodash": "^4.17.11",
     "noble": "^1.9.1",
