@@ -58,8 +58,8 @@ function validateConfig(config, path) {
     if (!_.isString(config.redirect_uri)) {
         throw new Error('"redirect_uri" value is either missing or invalid');
     }
-    if (!_.isString(config.ips_server_url)) {
-        throw new Error('"ips_server_url" value is either missing or invalid');
+    if (!_.isString(config.broker_url)) {
+        throw new Error('"broker_url" value is either missing or invalid');
     }
     if (!_.isString(config.oauth2_authorization_server_url)) {
         throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
@@ -105,6 +105,7 @@ function validateConfig(config, path) {
         throw new Error('"beacons_inactivity_timer" value is invalid');
     }
     if (_.isNil(config.access_token)) {
+        //TODO: Check if a 'refresh_token' is available before requesting a new 'access_token'. Only do that if there's no 'refresh_token' available, or if it is no longer valid! 
         console.log(`Go to ${config.oauth2_authorization_server_url}oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=${config.redirect_uri} and authorize the application.`);
     }
     if (_.isNil(config.device_uuid)) {
@@ -167,7 +168,7 @@ function connectToBroker(config, beaconScanner) {
     const socketio = require('@feathersjs/socketio-client');
     const auth = require('@feathersjs/authentication-client');
 
-    const socket = io(config.ips_server_url);
+    const socket = io(config.broker_url);
     const client = feathers();
     let jwtAccessToken = null;
 
@@ -179,8 +180,8 @@ function connectToBroker(config, beaconScanner) {
         if (!jwtAccessToken) {
             credentials = {
                 strategy: 'yanux',
-                accessToken: config.access_token,
-                clientId: config.client_id
+                clientId: config.client_id,
+                accessToken: config.access_token
             }
         } else {
             credentials = {

@@ -1,9 +1,9 @@
 {
     "http_port": 3003,
-    "client_id": "yanux-ips-desktop-client",
+    "client_id": "yanux-desktop-client",
     "client_secret": "topsecret_client_secret",
     "redirect_uri": "http://localhost:3003/",
-    "ips_server_url": "http://localhost:3002/",
+    "broker_url": "http://localhost:3002/",
     "oauth2_authorization_server_url": "http://localhost:3001/",
     "beacon_scan": true,
     "beacon_advertise": false,
