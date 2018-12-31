@@ -1,4 +1,4 @@
-const bleno = require('bleno');
+const bleno = require('@abandonware/bleno');
 
 module.exports = class IBeaconAdvertiser {
     constructor(uuid, major, minor, measuredPower = -59) {

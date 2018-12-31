@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const noble = require('noble');
+const noble = require('@abandonware/noble');
 const EventEmitter = require('events');
 const BeaconDetector = require('./BeaconDetector');
 const BeaconMatcher = require('./BeaconMatcher');
