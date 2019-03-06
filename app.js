@@ -4,24 +4,17 @@
  * or otherwise I will also incorporate the YanuX Orchestrator into it.
  * - Some of my code for Beacon Scanning was inspired by: https://github.com/futomi/node-beacon-scanner
  */
-
-const DEFAULT_CONFIG_PATH = './config.json';
-const DEFAULT_CONFIG_STRINGIFY_SPACES = 4;
-const DEFAULT_BEACON_SCAN = false;
-const DEFAULT_BEACON_ADVERTISE = false;
-const DEFAULT_BEACON_MATCHER_PARAMETERS = null;//[null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]];
-const DEFAULT_BEACON_ADVERTISER_PARAMETERS = null//["113069ec6e644bd36810de01b36e8a3e", 100, 100];
-const DEFAULT_BEACONS_PRINT_UPDATED = false;
-const DEFAULT_BEACONS_PRINT_CLEARED = false;
-const DEFAULT_BEACONS_CLEAR_CONSOLE = false;
-const DEFAULT_BEACONS_REFRESH_INTERVAL = 500;
-const DEFAULT_BEACONS_INACTIVITY_TIMER = 1000;
-
 const fs = require('fs');
+const path = require('path');
 const _ = require('lodash');
 const express = require('express');
 const request = require('request');
-const uuidv1 = require('uuid/v1');
+
+const Config = require('./src/Config');
+const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
+const BeaconScanner = require('./src/Scanner').BeaconScanner;
+const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
+
 
 function clearConsole() {
     return process.stdout.write('\033c');
@@ -45,107 +38,23 @@ function printBeacons(title = null, clear = false) {
     }
 }
 
-function validateConfig(config, path) {
-    if (!_.isFinite(config.http_port)) {
-        throw new Error('"http_port" value is either missing or invalid');
-    }
-    if (!_.isString(config.client_id)) {
-        throw new Error('"client_id" value is either missing or invalid');
-    }
-    if (!_.isString(config.client_secret)) {
-        throw new Error('"client_secret" value is either missing or invalid');
-    }
-    if (!_.isString(config.redirect_uri)) {
-        throw new Error('"redirect_uri" value is either missing or invalid');
-    }
-    if (!_.isString(config.broker_url)) {
-        throw new Error('"broker_url" value is either missing or invalid');
-    }
-    if (!_.isString(config.oauth2_authorization_server_url)) {
-        throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
-    }
-    if (!_.isNil(config.beacon_scan) &&
-        !_.isBoolean(config.beacon_scan)) {
-        throw new Error('"beacon_scan" value is invalid');
-    }
-    if (!_.isNil(config.beacon_advertise) &&
-        !_.isBoolean(config.beacon_advertise)) {
-        throw new Error('"beacon_advertise" value is invalid');
-    }
-    if (!_.isNil(config.beacon_advertiser_parameters)
-        && !(_.isArray(config.beacon_advertiser_parameters)
-            && (config.beacon_advertiser_parameters.length === 0 ||
-                config.beacon_advertiser_parameters.length === 3))) {
-        throw new Error('"beacon_advertiser_parameters" value is invalid');
-    }
-    if (!_.isNil(config.beacon_matcher_parameters) &&
-        !_.isArray(config.beacon_matcher_parameters)) {
-        throw new Error('"beacon_matcher_parameters" value is invalid');
-    }
-    if (!_.isNil(config.beacons_print_updated) &&
-        !_.isBoolean(config.beacons_print_updated)) {
-        throw new Error('"beacons_print_updated" value is invalid');
-    }
-    if (!_.isNil(config.beacons_print_cleared) &&
-        !_.isBoolean(config.beacons_print_cleared)) {
-        throw new Error('"beacons_print_cleared" value is invalid');
-    }
-    if (!_.isNil(config.beacons_clear_console) &&
-        !_.isBoolean(config.beacons_clear_console)) {
-        throw new Error('"beacons_clear_console" value is invalid');
-    }
-    if (!_.isNil(config.beacons_refresh_interval) &&
-        !_.isFinite(config.beacons_refresh_interval) &&
-        config.beacons_refresh_interval < 0) {
-        throw new Error('"beacons_refresh_interval" value is invalid');
-    }
-    if (!_.isNil(config.beacons_inactivity_timer)
-        && !_.isFinite(config.beacons_inactivity_timer)
-        && config.beacons_inactivity_timer < 0) {
-        throw new Error('"beacons_inactivity_timer" value is invalid');
-    }
-    if (_.isNil(config.access_token)) {
-        //TODO: Check if a 'refresh_token' is available before requesting a new 'access_token'. Only do that if there's no 'refresh_token' available, or if it is no longer valid! 
-        console.log(`Go to ${config.oauth2_authorization_server_url}oauth2/authorize?client_id=${config.client_id}&response_type=code&redirect_uri=${config.redirect_uri} and authorize the application.`);
-    }
-    if (_.isNil(config.device_uuid)) {
-        console.log('Generating a new Device ID because this is the first time you are running the YanuX IPS Desktop Client on this device.');
-        config.device_uuid = uuidv1();
-        saveConfig(path, config);
-    }
-    if (!_.isObject(config.device_capabilities)) {
-        throw new Error('"device_capabilities" value is either missing or invalid');
-    }
-    return config;
-}
-
-function saveConfig(path, config) {
-    fs.writeFile(path, JSON.stringify(config, null, DEFAULT_CONFIG_STRINGIFY_SPACES),
-        err => {
-            if (err) { throw err; }
-        });
-}
-
 function bluetoothLe(
-    beaconScan = DEFAULT_BEACON_SCAN,
-    beaconAdvertise = DEFAULT_BEACON_ADVERTISE,
-    beaconAdvertiserParameters = DEFAULT_BEACON_ADVERTISER_PARAMETERS,
-    beaconMatcherParameters = DEFAULT_BEACON_MATCHER_PARAMETERS,
-    beaconsPrintUpdated = DEFAULT_BEACONS_PRINT_UPDATED,
-    beaconsPrintCleared = DEFAULT_BEACONS_PRINT_CLEARED,
-    beaconsClearConsole = DEFAULT_BEACONS_CLEAR_CONSOLE,
-    beaconsRefreshInterval = DEFAULT_BEACONS_REFRESH_INTERVAL,
-    beaconsInactivityTimer = DEFAULT_BEACONS_INACTIVITY_TIMER) {
+    beaconScan = Config.DEFAULT_BEACON_SCAN,
+    beaconAdvertise = Config.DEFAULT_BEACON_ADVERTISE,
+    beaconAdvertiserParameters = Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+    beaconMatcherParameters = Config.DEFAULT_BEACON_MATCHER_PARAMETERS,
+    beaconsPrintUpdated = Config.DEFAULT_BEACONS_PRINT_UPDATED,
+    beaconsPrintCleared = Config.DEFAULT_BEACONS_PRINT_CLEARED,
+    beaconsClearConsole = Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
+    beaconsRefreshInterval = Config.DEFAULT_BEACONS_REFRESH_INTERVAL,
+    beaconsInactivityTimer = Config.DEFAULT_BEACONS_INACTIVITY_TIMER) {
     if (beaconAdvertise && _.isArray(beaconAdvertiserParameters) && beaconAdvertiserParameters.length === 3) {
-        const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
         beaconAdvertiserParameters = beaconAdvertiserParameters.slice(0)
         beaconAdvertiserParameters.unshift(null);
         const ibeacon_advertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, beaconAdvertiserParameters));
         ibeacon_advertiser.startAdvertising(errorCallback);
     }
     if (beaconScan && _.isArray(beaconMatcherParameters)) {
-        const BeaconScanner = require('./src/Scanner').BeaconScanner;
-        const BeaconMatcher = require('./src/Scanner').BeaconMatcher;
         const beacon_scanner = new BeaconScanner(beaconsRefreshInterval, beaconsInactivityTimer);
         beaconMatcherParameters = beaconMatcherParameters.slice(0);
         beaconMatcherParameters.unshift(null);
@@ -266,7 +175,7 @@ function connectToBroker(config, beaconScanner) {
                         });
                     }
                     const devicesService = client.service('devices');
-                    const beaconValues = config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS;
+                    const beaconValues = config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS;
                     return devicesService.patch(null, {
                         deviceUuid: config.device_uuid,
                         beaconValues: beaconValues,
@@ -275,7 +184,44 @@ function connectToBroker(config, beaconScanner) {
                 }).then(devices => {
                     console.log('Devices:', devices);
                 }).catch(e => console.error(e));
-            }).catch(e => console.error('Authentication Error', e));
+            }).catch(e => {
+                console.error('Authentication Error', e);
+                if (e.message === 'The provided access token is not valid.') {
+                    if (config.refresh_token) {
+                        console.log('Trying to get a new token using the Refresh Token');
+                        request.post({
+                            url: config.oauth2_authorization_server_url + 'oauth2/token',
+                            auth: {
+                                user: config.client_id,
+                                pass: config.client_secret,
+                                sendImmediately: true
+                            },
+                            form: {
+                                refresh_token: config.refresh_token,
+                                grant_type: 'refresh_token',
+                                redirect_uri: config.redirect_uri
+                            },
+                            json: true
+                        }, (err, resp, body) => {
+                            if (err) { return console.log(err); }
+                            if (_.isNil(body.error)) {
+                                console.log('Access and Refresh Tokens retrieved.');
+                                config.access_token = body.access_token;
+                                config.refresh_token = body.refresh_token;
+                                config.save();
+                                connectToBroker(config, beaconScanner);
+                            } else {
+                                console.log("Invalid Refresh Token:", body.error);
+                                config.deleteTokens();
+                                config.validate();
+                            }
+                        });
+                    } else {
+                        config.deleteTokens();
+                        config.validate();
+                    }
+                }
+            });
     }
     /** TODO: Port the re-authentication logic to YanuX Coordinator */
     authenticate();
@@ -290,7 +236,7 @@ function connectToBroker(config, beaconScanner) {
     });
 }
 
-function initHttpServer(configPath, config, beaconScanner) {
+function initHttpServer(config, beaconScanner) {
     const app = express();
     app.listen(config.http_port, () => console.log(`Started YanuX IPS Desktop Client HTTP Server on port ${config.http_port}!`));
     /** TODO: Refine the CORS policy! */
@@ -321,20 +267,19 @@ function initHttpServer(configPath, config, beaconScanner) {
             }, (err, resp, body) => {
                 if (err) { return console.log(err); }
                 if (_.isNil(body.error)) {
-                    res.write('Access and Refresh Tokens retrieved. You may now close this page.');
+                    res.sendFile(path.join(__dirname + '/public/success.html'));
                     config.access_token = body.access_token;
                     config.refresh_token = body.refresh_token;
-                    saveConfig(configPath, config);
+                    config.save();
                     connectToBroker(config, beaconScanner);
                 } else {
-                    res.write('The following error has occurred:\n');
-                    res.write(JSON.stringify(body, null, DEFAULT_CONFIG_STRINGIFY_SPACES));
+                    res.sendFile(path.join(__dirname + '/public/error.html'));
+                    console.log("The following error has occurred while trying to exchange and authorization code for an access and refresh tokens:",
+                        JSON.stringify(body, null, Config.DEFAULT_STRINGIFY_SPACES));
                 }
-                res.end();
             });
         } else {
-            res.write('It was not possible retrieve the Access and Refresh Tokens. Please try again later.');
-            res.end();
+            res.sendFile(path.join(__dirname + '/public/index.html'));
         }
     });
     app.get('/deviceInfo', (req, res) => {
@@ -347,32 +292,32 @@ function main() {
     const argv = require('yargs').option('config', {
         alias: 'c',
         demandOption: true,
-        default: DEFAULT_CONFIG_PATH,
+        default: Config.DEFAULT_CONFIG_PATH,
         describe: 'Config file path',
         type: 'string'
     }).argv;
-
     const configPath = argv.config;
     fs.readFile(configPath,
         function (err, data) {
             if (err) {
                 throw err;
             }
-            const config = validateConfig(JSON.parse(data), configPath);
+            const config = new Config(JSON.parse(data), configPath);
+            config.validate();
             const beaconScanner = bluetoothLe(
-                config.beacon_scan || DEFAULT_BEACON_SCAN,
-                config.beacon_advertise || DEFAULT_BEACON_ADVERTISE,
-                config.beacon_advertiser_parameters || DEFAULT_BEACON_ADVERTISER_PARAMETERS,
-                config.beacon_matcher_parameters || DEFAULT_BEACON_MATCHER_PARAMETERS,
-                config.beacons_print_updated || DEFAULT_BEACONS_PRINT_UPDATED,
-                config.beacons_print_cleared || DEFAULT_BEACONS_CLEAR_CONSOLE,
-                config.beacons_clear_console || DEFAULT_BEACONS_CLEAR_CONSOLE,
-                config.beacons_refresh_interval || DEFAULT_BEACONS_REFRESH_INTERVAL,
-                config.beacons_inactivity_timer || DEFAULT_BEACONS_INACTIVITY_TIMER);
+                config.beacon_scan || Config.DEFAULT_BEACON_SCAN,
+                config.beacon_advertise || Config.DEFAULT_BEACON_ADVERTISE,
+                config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+                config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS,
+                config.beacons_print_updated || Config.DEFAULT_BEACONS_PRINT_UPDATED,
+                config.beacons_print_cleared || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
+                config.beacons_clear_console || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
+                config.beacons_refresh_interval || Config.DEFAULT_BEACONS_REFRESH_INTERVAL,
+                config.beacons_inactivity_timer || Config.DEFAULT_BEACONS_INACTIVITY_TIMER);
             if (_.isString(config.access_token)) {
                 connectToBroker(config, beaconScanner);
             }
-            initHttpServer(configPath, config, beaconScanner);
+            initHttpServer(config, beaconScanner);
         });
 }
 

@@ -10,16 +10,14 @@
   "license": "GPL-3.0",
   "main": "index.js",
   "scripts": {
-    "node10-install": "MAKEFLAGS=-j1 npm install --build-from-source",
-    "node10-update": "MAKEFLAGS=-j1 npm update --dev --save --build-from-source",
     "execute": "node app.js",
     "start": "npm run watch",
     "watch": "npx nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@abandonware/bleno": "^0.5.0-1",
     "@abandonware/noble": "^1.9.2-1",
-    "@abandonware/bleno": "^0.5.1-0",
     "@feathersjs/authentication-client": "^1.0.9",
     "@feathersjs/feathers": "^3.3.0",
     "@feathersjs/socketio-client": "^1.2.0",
@@ -30,6 +28,6 @@
     "request": "^2.88.0",
     "socket.io-client": "^2.2.0",
     "uuid": "^3.3.2",
-    "yargs": "^12.0.5"
+    "yargs": "^13.2.2"
   }
 }
