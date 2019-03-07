@@ -102,6 +102,7 @@ function connectToBroker(config, beaconScanner) {
             .then(response => {
                 jwtAccessToken = response.accessToken;
                 console.log('Logged in successfully with the following JWT: ' + response.accessToken);
+                //TODO: Customize verification so that it checks if the JWT signature is valid just like I'm doing on Android.
                 return client.passport.verifyJWT(response.accessToken);
             }).then(payload => {
                 console.log('JWT Payload', payload);
