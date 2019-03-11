@@ -128,7 +128,7 @@ function connectToBroker(config, beaconScanner) {
                 const tidyUpBeacons = () => {
                     return beaconsService
                         .remove(null, { query: { deviceUuid: config.device_uuid } })
-                        .then(beacons => console.log('Removing any outstanding beacons:', beacons));
+                        .then(beacons => console.log('Removed any outstanding beacons:', beacons));
                 }
                 process.on('SIGINT', () => {
                     tidyUpBeacons()
@@ -224,7 +224,8 @@ function connectToBroker(config, beaconScanner) {
                 }
             });
     }
-    /** TODO: Port the re-authentication logic to YanuX Coordinator */
+    /** TODO: Port the re-authentication logic to YanuX Coordinator and Scavenger!
+     *  In fact, I should finish implementing it here because I noted that if the connections is kept open beyond the JWT expiration time a NotAuthenticated error arises. */
     authenticate();
     client.io.on('reconnect', attempt => {
         console.log(`Reconnected after ${attempt} attempts`);
