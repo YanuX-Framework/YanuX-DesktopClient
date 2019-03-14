@@ -31,8 +31,11 @@ module.exports = class Config {
             });
     }
     validate(path) {
-        if (!_.isFinite(this.http_port)) {
-            throw new Error('"http_port" value is either missing or invalid');
+        if (!_.isBoolean(this.allow_zeroconf)) {
+            throw new Error('"allow_zeroconf" value is either missing or invalid');
+        }
+        if (!_.isFinite(this.http_server_port)) {
+            throw new Error('"http_server_port" value is either missing or invalid');
         }
         if (!_.isString(this.client_id)) {
             throw new Error('"client_id" value is either missing or invalid');

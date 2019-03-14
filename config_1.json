@@ -1,5 +1,6 @@
 {
-    "http_port": 3013,
+    "http_server_port": 3013,
+    "allow_zeroconf": true,
     "client_id": "yanux-desktop-client",
     "client_secret": "topsecret_client_secret",
     "redirect_uri": "http://localhost:3013/",

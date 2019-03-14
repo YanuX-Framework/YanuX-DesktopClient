@@ -1,10 +1,11 @@
 {
-    "http_port": 3003,
+    "http_server_port": 3003,
+    "allow_zeroconf": true,
     "client_id": "yanux-desktop-client",
     "client_secret": "topsecret_client_secret",
     "redirect_uri": "http://localhost:3003/",
-    "broker_url": "http://localhost:3002/",
-    "oauth2_authorization_server_url": "http://localhost:3001/",
+    "broker_url": "http://lambda.local.:3002/",
+    "oauth2_authorization_server_url": "http://lambda.local.:3001/",
     "beacon_scan": true,
     "beacon_advertise": false,
     "beacon_matcher_parameters": [
@@ -29,6 +30,6 @@
         "view": true,
         "control": true
     },
-    "access_token": "GVvDVlEhd7Hz6rCueuHXBBrNzjWd4iBkWUy9fS4aKdOsDG1zQy2BDt4bM9OSwZ0LXG0UDSy9YkI4EhzfIbIQQwSLvZJwKyYJg6jCFevGA08LrlBGa6Zt3Ja25laGhytN0IuktCt8KAQXjgtRkCjTPQ8LLjgsN4frWebyj1pYNC71FuTvJHtqc53Vdxvuz5s3BPK3Fg8B4CcCxRQZySKJao0x2SiQCofNZTtCBuHsxKN9zRGtPEZMP195w7ZkEzIM",
-    "refresh_token": "skiCHTJ3DjeW0CGQkLRW5GVGpm6D6GPWYZoTC8Qgg3Qlzg7dKecRvgRcdLzTfR1kfG5culWNUFRlNosrG2N01BhgmciaXMlTK2XIQIMpCH3zH9t1QDCiYU7CRNKwBlAqsoHrqh977DOhDBTBlJrRgqkV2VB3hMDKXeBTwJbWPo0s3CwVMqVqpbF6i7LypTmUGtaMABFeYYrqQDH5FsEqwZlktlZnhNX4qD23WVvYjMsskCiq5FU94vXZPiUwyohF"
+    "access_token": "4HigkbigSio9E1jCorPGX7FVA9HAndORSjWzTvC6ehIJyd0T1Hay1oJHwdAc7kVj5LkjAAmfzJ1gMQsoTlWj57oEEKMC0rKuvQkHD1OoH75TBuS9ybuDuyyGr5hFnHWiMSKpPlbGvQUcokLvnmxmNNuj4DiVw3koag0S6Qbq89DzIDxZlFz1M1B9HmAzrxAFoJd1mGpMVEFJzxfnU5t0E7FXG3LFZibFMCS3QrMUDtlD7zB9TL3ukLtbt9tuFK0Y",
+    "refresh_token": "zW6ar4HFmDX4D2j6HxfpXBPlGAzPwSdHPLBQr4KkITmwxPnEPTqUsBd1csraa4nsL9pb1AwDTb5mlLKSRzlqSjmVPoiJWW7zMtbwxCoO29R01h4wBuzG9URzfNeGGCO2iIWfLyztXFFlnMs5LqAVT8lB3K1aAi7HCzEVcHTYXUMVFmAwbAr7j07T7WwU1INFYUpK7ltiBRgodIpSZXPXjc3pHB2QFqjeEw4rx4yZVcc0OfVIoDi4ScXVyIw1eaPc"
 }

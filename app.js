@@ -9,6 +9,7 @@ const path = require('path');
 const _ = require('lodash');
 const express = require('express');
 const request = require('request');
+const dnssd = require('dnssd');
 
 const Config = require('./src/Config');
 const IBeaconAdvertiser = require('./src/Advertiser').IBeaconAdvertiser;
@@ -59,7 +60,6 @@ function bluetoothLe(
         beaconMatcherParameters = beaconMatcherParameters.slice(0);
         beaconMatcherParameters.unshift(null);
         beacon_scanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, beaconMatcherParameters)));
-
         if (beaconsPrintUpdated) {
             beacon_scanner.on('beaconsUpdated', printBeacons('beaconsUpdated', beaconsClearConsole));
         }
@@ -132,8 +132,10 @@ function connectToBroker(config, beaconScanner) {
                 }
                 process.on('SIGINT', () => {
                     tidyUpBeacons()
-                        .then(() => process.exit())
-                        .catch(e => {
+                        .then(() => {
+                            socket.close();
+                            process.exit();
+                        }).catch(e => {
                             console.error(e);
                             process.exit();
                         });
@@ -240,7 +242,7 @@ function connectToBroker(config, beaconScanner) {
 
 function initHttpServer(config, beaconScanner) {
     const app = express();
-    app.listen(config.http_port, () => console.log(`Started YanuX IPS Desktop Client HTTP Server on port ${config.http_port}!`));
+    app.listen(config.http_server_port, () => console.log(`Started YanuX IPS Desktop Client HTTP Server on port ${config.http_server_port}!`));
     /** TODO: Refine the CORS policy! */
     app.use(function (req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
@@ -290,6 +292,23 @@ function initHttpServer(config, beaconScanner) {
     });
 }
 
+function start(config) {
+    const beaconScanner = bluetoothLe(
+        config.beacon_scan || Config.DEFAULT_BEACON_SCAN,
+        config.beacon_advertise || Config.DEFAULT_BEACON_ADVERTISE,
+        config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+        config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS,
+        config.beacons_print_updated || Config.DEFAULT_BEACONS_PRINT_UPDATED,
+        config.beacons_print_cleared || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
+        config.beacons_clear_console || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
+        config.beacons_refresh_interval || Config.DEFAULT_BEACONS_REFRESH_INTERVAL,
+        config.beacons_inactivity_timer || Config.DEFAULT_BEACONS_INACTIVITY_TIMER);
+    if (_.isString(config.access_token)) {
+        connectToBroker(config, beaconScanner);
+    }
+    initHttpServer(config, beaconScanner);
+}
+
 function main() {
     const argv = require('yargs').option('config', {
         alias: 'c',
@@ -306,20 +325,33 @@ function main() {
             }
             const config = new Config(JSON.parse(data), configPath);
             config.validate();
-            const beaconScanner = bluetoothLe(
-                config.beacon_scan || Config.DEFAULT_BEACON_SCAN,
-                config.beacon_advertise || Config.DEFAULT_BEACON_ADVERTISE,
-                config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
-                config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS,
-                config.beacons_print_updated || Config.DEFAULT_BEACONS_PRINT_UPDATED,
-                config.beacons_print_cleared || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
-                config.beacons_clear_console || Config.DEFAULT_BEACONS_CLEAR_CONSOLE,
-                config.beacons_refresh_interval || Config.DEFAULT_BEACONS_REFRESH_INTERVAL,
-                config.beacons_inactivity_timer || Config.DEFAULT_BEACONS_INACTIVITY_TIMER);
-            if (_.isString(config.access_token)) {
-                connectToBroker(config, beaconScanner);
+            if (config.allow_zeroconf) {
+                let broker_url, oauth2_authorization_server_url;
+                const browser = dnssd.Browser(dnssd.tcp('http'))
+                    .on('serviceUp', service => {
+                        console.log("Device up: ", service)
+                        const url = service.txt.protocol + '://' + service.host + ':' + service.port + '/';
+                        switch (service.name) {
+                            case 'YanuX-Auth':
+                                oauth2_authorization_server_url = url;
+                                break;
+                            case 'YanuX-Broker':
+                                broker_url = url;
+                                break;
+                            default:
+                                break;
+                        }
+                        if (broker_url && oauth2_authorization_server_url) {
+                            config.broker_url = broker_url;
+                            config.oauth2_authorization_server_url = oauth2_authorization_server_url;
+                            config.save();
+                            start(config);
+                            browser.stop();
+                        }
+                    }).start();
+            } else {
+                start(config);
             }
-            initHttpServer(config, beaconScanner);
         });
 }
 
