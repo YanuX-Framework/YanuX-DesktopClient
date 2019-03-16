@@ -3,13 +3,17 @@ const _ = require('lodash');
 const uuidv1 = require('uuid/v1');
 
 module.exports = class Config {
-    constructor(data, path) {
-        Object.assign(this, data);
+    constructor(path, callback) {
+        const self = this;
         Object.defineProperty(this, 'path', {
             configurable: false,
             enumerable: false,
             value: path,
             writable: true
+        });
+        fs.readFile(path, (err, data) => {
+            if (!err) { Object.assign(this, JSON.parse(data)); }
+            callback(err, this);
         });
     }
     static get DEFAULT_CONFIG_PATH() { return './config.json'; }
@@ -24,11 +28,16 @@ module.exports = class Config {
     static get DEFAULT_BEACONS_REFRESH_INTERVAL() { return 500; }
     static get DEFAULT_BEACONS_INACTIVITY_TIMER() { return 1000; }
 
-    save() {
-        fs.writeFile(this.path, JSON.stringify(this, null, Config.DEFAULT_STRINGIFY_SPACES),
-            err => {
+    save(callback) {
+        let writeCallback;
+        if (!callback) {
+            writeCallback = err => {
                 if (err) { throw err; }
-            });
+            }
+        } else {
+            writeCallback = callback;
+        }
+        fs.writeFile(this.path, JSON.stringify(this, null, Config.DEFAULT_STRINGIFY_SPACES), writeCallback);
     }
     validate(path) {
         if (!_.isBoolean(this.allow_zeroconf)) {
@@ -104,7 +113,6 @@ module.exports = class Config {
         if (!_.isObject(this.device_capabilities)) {
             throw new Error('"device_capabilities" value is either missing or invalid');
         }
-        return this;
     }
     deleteTokens() {
         delete this.access_token;

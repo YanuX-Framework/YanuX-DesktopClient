@@ -29,7 +29,5 @@
     "device_capabilities": {
         "view": true,
         "control": true
-    },
-    "access_token": "4HigkbigSio9E1jCorPGX7FVA9HAndORSjWzTvC6ehIJyd0T1Hay1oJHwdAc7kVj5LkjAAmfzJ1gMQsoTlWj57oEEKMC0rKuvQkHD1OoH75TBuS9ybuDuyyGr5hFnHWiMSKpPlbGvQUcokLvnmxmNNuj4DiVw3koag0S6Qbq89DzIDxZlFz1M1B9HmAzrxAFoJd1mGpMVEFJzxfnU5t0E7FXG3LFZibFMCS3QrMUDtlD7zB9TL3ukLtbt9tuFK0Y",
-    "refresh_token": "zW6ar4HFmDX4D2j6HxfpXBPlGAzPwSdHPLBQr4KkITmwxPnEPTqUsBd1csraa4nsL9pb1AwDTb5mlLKSRzlqSjmVPoiJWW7zMtbwxCoO29R01h4wBuzG9URzfNeGGCO2iIWfLyztXFFlnMs5LqAVT8lB3K1aAi7HCzEVcHTYXUMVFmAwbAr7j07T7WwU1INFYUpK7ltiBRgodIpSZXPXjc3pHB2QFqjeEw4rx4yZVcc0OfVIoDi4ScXVyIw1eaPc"
+    }
 }
