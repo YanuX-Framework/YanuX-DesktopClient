@@ -8,7 +8,7 @@ module.exports = class HTTPServer {
         this.config = config;
         this.brokerConnection = brokerConnection;
         this.app = express();
-        /** TODO: Refine the CORS policy! */
+        //TODO: Refine the CORS policy!
         this.app.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             next();

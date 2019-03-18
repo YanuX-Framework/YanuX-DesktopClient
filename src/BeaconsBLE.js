@@ -17,7 +17,7 @@ module.exports = class BeaconsBLE {
             this.beaconsRefreshInterval = config.beacons_refresh_interval || Config.DEFAULT_BEACONS_REFRESH_INTERVAL,
             this.beaconsInactivityTimer = config.beacons_inactivity_timer || Config.DEFAULT_BEACONS_INACTIVITY_TIMER
         if (this.beaconAdvertise && _.isArray(this.beaconAdvertiserParameters) && this.beaconAdvertiserParameters.length === 3) {
-            this.beaconAdvertiserParameters = beaconAdvertiserParameters.slice(0)
+            this.beaconAdvertiserParameters = this.beaconAdvertiserParameters.slice(0)
             this.beaconAdvertiserParameters.unshift(null);
             this.iBeaconAdvertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, this.beaconAdvertiserParameters));
         }

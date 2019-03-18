@@ -4,10 +4,10 @@
     "client_id": "yanux-desktop-client",
     "client_secret": "topsecret_client_secret",
     "redirect_uri": "http://localhost:3003/",
-    "broker_url": "http://localhost:3002/",
-    "oauth2_authorization_server_url": "http://localhost:3001/",
+    "broker_url": "http://lambda.local.:3002/",
+    "oauth2_authorization_server_url": "http://lambda.local.:3001/",
     "beacon_scan": true,
-    "beacon_advertise": false,
+    "beacon_advertise": true,
     "beacon_matcher_parameters": [
         null,
         "iBeacon",
@@ -18,7 +18,7 @@
     "beacon_advertiser_parameters": [
         "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
         1,
-        1
+        100
     ],
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
@@ -28,8 +28,8 @@
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "view": true,
-        "control": true
+        "control": false
     },
-    "access_token": "TDN3M4kxTJPlx52u4vbeFpWdtxoZLJvc6lbU8ebhZPCFcTaAa65ygAFdKS7M1JAinmFZpdOpudYQRWAosCiVOgR7GQ7nri3HBLjEky9tDcNJEUzZuWfDifiQAhEjFNO6UpFhFeYfXFjcvZVS0rgs9LppO05hfS9VADcZSdGvZ7cwt7qK9ogjKqyuiCFwccubfbDGM3GPBSxkUQ7THTbdrl5Cs7w8Y7v4eNoIdsrJF60xTI2KARVXqTPwMnXMuw1d",
-    "refresh_token": "xd6vwuR991pVgpVDQhhnXYOj55wXkIoFFdS5vAP1GJiYVOvNLnRNGa1JghR0HqEHsgX6JVgvjTmpHhP9ishezbh0NQVYJScSgrHGJNsVE5BldrDUL9Y3pMPNOFs6oqLcUSoKGXHbkte5Bj7FAAWoUbNRDb4549UKOdB2zmKC2kLOnxppiZjNel30y0VCTonuluXZSmHNEZDQu0QHPb6j00WCtb8DL5AmbhfxB0Pz9ohSS6wLXxZ9ufYrYCwbV0yP"
+    "access_token": "Hn6WDh2L99dcWQqUkHDXKtXMSiTsDsCVd0rfYnbovXP4ISZW3jCIlR2VSghNnfLROStum6yqEsbzWWlnk2fKGywXnyB4zsl0VEA8Q34GXHTk0QjrFZ9ZMUMbxXlObrOFFz64FZ7D4EBFRYalY7h7Oor924KXtGaZqP1yWmW0RxmpQ7jqfHGoalb41Ue33HISioZqdS6A30KHX9QSClDOHi5d4hiQdXwB1UYKIsHrxYk7ZAaM5pjS6SeYWWGsqnsy",
+    "refresh_token": "1GNlq4RQMzEqD4yGCWZYdCQhaW8SskHmGTDtWLCRUTwqkTAEuxL7c4TWe7Ako6iBQUMz28oCB5fyl5G63rfpvMC5HPDdtETHWmA3t3RHVk3BNPEBpehYq3NBCRttyEH1tEy6bQYmg56NoGYY2iRcmv01VcMsMBC9rkAu2BxKteFI7c44r5BSFMBN5Ixiv3qXBdAbEaCIVHdXEislhn7NLZRhy44JxlZOrVSDtZgI6tD2SKV7sVoWZCYYeaRmPxTv"
 }
