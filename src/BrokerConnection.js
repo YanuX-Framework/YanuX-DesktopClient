@@ -112,7 +112,7 @@ module.exports = class BrokerConnection {
                                 beacon: beacon
                             }).then(beacon => {
                                 console.log('Beacon Created:', beacon);
-                            }).catch(e => console.error(e));
+                            }).catch(e => this.handleError(e));
                         });
                         this.beaconsBLE.beaconScanner.on('beaconUpdated', beacon => {
                             this.beaconsService.patch(null, { beacon: beacon }, {
@@ -123,7 +123,7 @@ module.exports = class BrokerConnection {
                                 }
                             }).then(beacons => {
                                 console.log('Beacons Patched:', beacons);
-                            }).catch(e => console.error(e));
+                            }).catch(e => this.handleError(e));
                         });
                         this.beaconsBLE.beaconScanner.on('beaconRemoved', beacon => {
                             this.beaconsService.remove(null, {
@@ -134,7 +134,7 @@ module.exports = class BrokerConnection {
                                 }
                             }).then(beacons => {
                                 console.log('Beacons Removed:', beacons);
-                            }).catch(e => console.error(e));
+                            }).catch(e => this.handleError(e));
                         });
                     }
                     return this.devicesService.patch(null, {
@@ -144,52 +144,59 @@ module.exports = class BrokerConnection {
                     }, { query: { deviceUuid: this.config.device_uuid } });
                 }).then(devices => {
                     console.log('Devices:', devices);
-                }).catch(e => console.error(e));
-            }).catch(e => {
-                console.error('Authentication Error', e);
-                if (e.message === 'The provided access token is not valid.') {
-                    if (this.config.refresh_token) {
-                        console.log('Trying to get a new token using the Refresh Token');
-                        request.post({
-                            url: this.config.oauth2_authorization_server_url + 'oauth2/token',
-                            auth: {
-                                user: this.config.client_id,
-                                pass: this.config.client_secret,
-                                sendImmediately: true
-                            },
-                            form: {
-                                refresh_token: this.config.refresh_token,
-                                grant_type: 'refresh_token',
-                                redirect_uri: this.config.redirect_uri
-                            },
-                            json: true
-                        }, (err, resp, body) => {
-                            if (err) { return console.log(err); }
-                            if (_.isNil(body.error)) {
-                                console.log('Access and Refresh Tokens retrieved.');
-                                this.config.access_token = body.access_token;
-                                this.config.refresh_token = body.refresh_token;
-                                this.config.save(err => {
-                                    if (err) { throw err; }
-                                    else { this.connect(); }
-                                });
-                            } else {
-                                console.log("Invalid Refresh Token:", body.error);
-                                this.config.deleteTokens();
-                                this.config.validate();
-                            }
-                        });
-                    } else {
-                        this.config.deleteTokens();
-                        this.config.validate();
-                    }
-                }
-            });
+                }).catch(e => this.handleError(e));
+            }).catch(e => this.handleError(e));
         }
     }
     tidyUpBeacons() {
         return this.beaconsService
             .remove(null, { query: { deviceUuid: this.config.device_uuid } })
             .then(beacons => console.log('Removed any outstanding beacons:', beacons));
+    }
+    handleError(e) {
+        console.error('Error', e);
+        if(e.name === 'NotAuthenticated') {
+            if(e.message === 'jwt expired') {
+                this.jwtAccessToken = null;
+            }
+            this.authenticate();
+        } else if (e.message === 'The provided access token is not valid.') {
+            console.error('Authentication Error', e);
+            if (this.config.refresh_token) {
+                console.log('Trying to get a new token using the Refresh Token');
+                request.post({
+                    url: this.config.oauth2_authorization_server_url + 'oauth2/token',
+                    auth: {
+                        user: this.config.client_id,
+                        pass: this.config.client_secret,
+                        sendImmediately: true
+                    },
+                    form: {
+                        refresh_token: this.config.refresh_token,
+                        grant_type: 'refresh_token',
+                        redirect_uri: this.config.redirect_uri
+                    },
+                    json: true
+                }, (err, resp, body) => {
+                    if (err) { return console.log(err); }
+                    if (_.isNil(body.error)) {
+                        console.log('Access and Refresh Tokens retrieved.');
+                        this.config.access_token = body.access_token;
+                        this.config.refresh_token = body.refresh_token;
+                        this.config.save(err => {
+                            if (err) { throw err; }
+                            else { this.connect(); }
+                        });
+                    } else {
+                        console.log("Invalid Refresh Token:", body.error);
+                        this.config.deleteTokens();
+                        this.config.validate();
+                    }
+                });
+            } else {
+                this.config.deleteTokens();
+                this.config.validate();
+            }
+        }
     }
 }
