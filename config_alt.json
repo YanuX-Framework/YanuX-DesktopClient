@@ -1,11 +1,11 @@
 {
     "http_server_port": 3003,
-    "allow_zeroconf": true,
+    "allow_zeroconf": false,
     "client_id": "yanux-desktop-client",
     "client_secret": "topsecret_client_secret",
-    "redirect_uri": "http://localhost:3003/",
-    "broker_url": "http://lambda.local.:3002/",
-    "oauth2_authorization_server_url": "http://lambda.local.:3001/",
+    "redirect_uri": "http://10.8.0.2:3003/",
+    "broker_url": "http://10.8.0.2:3002/",
+    "oauth2_authorization_server_url": "http://10.8.0.2:3001/",
     "beacon_scan": true,
     "beacon_advertise": true,
     "beacon_matcher_parameters": [
