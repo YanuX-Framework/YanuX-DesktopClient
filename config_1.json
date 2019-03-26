@@ -1,0 +1,35 @@
+{
+    "http_server_port": 3003,
+    "allow_zeroconf": true,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3003/",
+    "broker_url": "http://lambda.local.:3002/",
+    "oauth2_authorization_server_url": "http://lambda (2).local.:3001/",
+    "beacon_scan": true,
+    "beacon_advertise": false,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        1
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 500,
+    "beacons_inactivity_timer": 1000,
+    "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
+    "device_capabilities": {
+        "view": true,
+        "control": true
+    },
+    "access_token": "4ZY2bwwH7AqXFj0tADZZXbNDZ3njDMwq6RQwJfpSnNGDjtgFECOAQBWwyWknqaCnjTIeDzHtndAVAEkjKHff8EFNbKgwa0R8H1XQoeXe9JYqdxGFVbVHoOXBQ3EY2YBfhf155gwBeDm2W40Glhe9osTHalRVuOV0mSWDHDJBhgu0mIsP53FOEM42SkRB5A2VeUxACTMmVM2u3gmTyWew3ORz8g7lrOl4zBNpTqO4OhkxH2PfQXPSxJEyMneuuYDF",
+    "refresh_token": "7ovtT1zjhLSpCIfbDOJBvAUQx7gNMPEMjADybeC0XoezexHqd4TDKowFHC62aofNzCe3jsZuKzHn712JgI4KH7eSzXhmsIzGHrwDO0o3A2j2B4cD7qRnCkxtjrI2583L61Fo9J410tyUClu8TbEx3v8wgrRJexcqFGW0HXTadtFREFYuDICg55uN9lhpDZkrSptzielOWWoyW9rm7bQ1L8skj6KLSQ3RSgDSNxGPdcVBNGtqTuWRPoHf7x8MahpF"
+}

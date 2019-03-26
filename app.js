@@ -19,7 +19,7 @@ function start(config) {
     const httpServer = new HTTPServer(config, brokerConnection);
     httpServer.listen();
     const zeroconf = new Zeroconf(config, brokerConnection);
-    if (_.isBoolean(config.allow_zeroconf) && config.zeroconf) {
+    if (_.isBoolean(config.allow_zeroconf) && config.allow_zeroconf) {
         zeroconf.startDiscovery();
     }
 }

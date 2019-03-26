@@ -63,100 +63,100 @@ module.exports = class BrokerConnection {
                 accessToken: this.jwtAccessToken,
             }
         }
-        if(credentials.accessToken) {
+        if (credentials.accessToken) {
             this.client.authenticate(credentials)
-            .then(response => {
-                this.jwtAccessToken = response.accessToken;
-                console.log('Logged in successfully with the following JWT: ' + response.accessToken);
-                //TODO: Customize verification so that it checks if the JWT signature is valid just like I'm doing on Android.
-                return this.client.passport.verifyJWT(response.accessToken);
-            }).then(payload => {
-                console.log('JWT Payload', payload);
-                return this.usersService.get(payload.userId);
-            }).then(user => {
-                this.client.set('user', user);
-                console.log('User', this.client.get('user'));
-                /**
-                 * Server-side events
-                 */
-                /*
-                this.beaconsService.on('created', beacon => {
-                    console.log('Event Beacon Created', beacon)
-                });
-                this.beaconsService.on('patched', beacon => {
-                    console.log('Event Beacon Patched', beacon)
-                });
-                this.beaconsService.on('removed', beacon => {
-                    console.log('Event Beacon Removed', beacon)
-                });
-                */
-                process.on('SIGINT', () => {
-                    this.tidyUpBeacons()
-                        .then(() => {
-                            this.socket.close();
-                            process.exit();
-                        }).catch(e => {
-                            console.error(e);
-                            process.exit();
-                        });
-                });
-                this.tidyUpBeacons().then(() => {
-                    if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
-                        this.beaconsBLE.beaconScanner.removeAllListeners();
-                        this.beaconsBLE.beaconScanner.beacons.length = 0;
-                        this.beaconsBLE.beaconScanner.on('beaconCreated', beacon => {
-                            this.beaconsService.create({
-                                user: user._id,
-                                deviceUuid: this.config.device_uuid,
-                                beaconKey: beacon.key,
-                                beacon: beacon
-                            }).then(beacon => {
-                                console.log('Beacon Created:', beacon);
-                            }).catch(e => this.handleError(e));
-                        });
-                        this.beaconsBLE.beaconScanner.on('beaconUpdated', beacon => {
-                            this.beaconsService.patch(null, { beacon: beacon }, {
-                                query: {
+                .then(response => {
+                    this.jwtAccessToken = response.accessToken;
+                    console.log('Logged in successfully with the following JWT: ' + response.accessToken);
+                    //TODO: Customize verification so that it checks if the JWT signature is valid just like I'm doing on Android.
+                    return this.client.passport.verifyJWT(response.accessToken);
+                }).then(payload => {
+                    console.log('JWT Payload', payload);
+                    return this.usersService.get(payload.userId);
+                }).then(user => {
+                    this.client.set('user', user);
+                    console.log('User', this.client.get('user'));
+                    /**
+                     * Server-side events
+                     */
+                    /*
+                    this.beaconsService.on('created', beacon => {
+                        console.log('Event Beacon Created', beacon)
+                    });
+                    this.beaconsService.on('patched', beacon => {
+                        console.log('Event Beacon Patched', beacon)
+                    });
+                    this.beaconsService.on('removed', beacon => {
+                        console.log('Event Beacon Removed', beacon)
+                    });
+                    */
+                    process.on('SIGINT', () => {
+                        this.tidyUpBeacons()
+                            .then(() => {
+                                this.socket.close();
+                                process.exit();
+                            }).catch(e => {
+                                console.error(e);
+                                process.exit();
+                            });
+                    });
+                    this.tidyUpBeacons().then(() => {
+                        if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
+                            this.beaconsBLE.beaconScanner.removeAllListeners();
+                            this.beaconsBLE.beaconScanner.beacons.length = 0;
+                            this.beaconsBLE.beaconScanner.on('beaconCreated', beacon => {
+                                this.beaconsService.create({
                                     user: user._id,
                                     deviceUuid: this.config.device_uuid,
-                                    beaconKey: beacon.key
-                                }
-                            }).then(beacons => {
-                                console.log('Beacons Patched:', beacons);
-                            }).catch(e => this.handleError(e));
-                        });
-                        this.beaconsBLE.beaconScanner.on('beaconRemoved', beacon => {
-                            this.beaconsService.remove(null, {
-                                query: {
-                                    user: user._id,
-                                    deviceUuid: this.config.device_uuid,
-                                    beaconKey: beacon.key
-                                }
-                            }).then(beacons => {
-                                console.log('Beacons Removed:', beacons);
-                            }).catch(e => this.handleError(e));
-                        });
-                    }
-                    return this.devicesService.patch(null, {
-                        deviceUuid: this.config.device_uuid,
-                        beaconValues: this.config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
-                        capabilities: this.config.device_capabilities
-                    }, { query: { deviceUuid: this.config.device_uuid } });
-                }).then(devices => {
-                    console.log('Devices:', devices);
+                                    beaconKey: beacon.key,
+                                    beacon: beacon
+                                }).then(beacon => {
+                                    console.log('Beacon Created:', beacon);
+                                }).catch(e => this.handleError(e));
+                            });
+                            this.beaconsBLE.beaconScanner.on('beaconUpdated', beacon => {
+                                this.beaconsService.patch(null, { beacon: beacon }, {
+                                    query: {
+                                        user: user._id,
+                                        deviceUuid: this.config.device_uuid,
+                                        beaconKey: beacon.key
+                                    }
+                                }).then(beacons => {
+                                    console.log('Beacons Patched:', beacons);
+                                }).catch(e => this.handleError(e));
+                            });
+                            this.beaconsBLE.beaconScanner.on('beaconRemoved', beacon => {
+                                this.beaconsService.remove(null, {
+                                    query: {
+                                        user: user._id,
+                                        deviceUuid: this.config.device_uuid,
+                                        beaconKey: beacon.key
+                                    }
+                                }).then(beacons => {
+                                    console.log('Beacons Removed:', beacons);
+                                }).catch(e => this.handleError(e));
+                            });
+                        }
+                        return this.devicesService.patch(null, {
+                            deviceUuid: this.config.device_uuid,
+                            beaconValues: this.config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+                            capabilities: this.config.device_capabilities
+                        }, { query: { deviceUuid: this.config.device_uuid } });
+                    }).then(devices => {
+                        console.log('Devices:', devices);
+                    }).catch(e => this.handleError(e));
                 }).catch(e => this.handleError(e));
-            }).catch(e => this.handleError(e));
         }
     }
     tidyUpBeacons() {
         return this.beaconsService
-            .remove(null, { query: { deviceUuid: this.config.device_uuid } })
+            .remove(null, { query: { user: this.client.get('user'), deviceUuid: this.config.device_uuid } })
             .then(beacons => console.log('Removed any outstanding beacons:', beacons));
     }
     handleError(e) {
         console.error('Error', e);
-        if(e.name === 'NotAuthenticated') {
-            if(e.message === 'jwt expired') {
+        if (e.name === 'NotAuthenticated') {
+            if (e.message === 'jwt expired') {
                 this.jwtAccessToken = null;
             }
             this.authenticate();

@@ -51,7 +51,4 @@ module.exports = class Zeroconf {
     set brokerConnection(brokerConnection) {
         this._brokerConnection = brokerConnection;
     }
-    discover() {
-
-    }
 }
