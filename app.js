@@ -25,18 +25,45 @@ function start(config) {
 }
 
 function main() {
-    const argv = require('yargs').option('config', {
-        alias: 'c',
-        demandOption: true,
-        default: Config.DEFAULT_CONFIG_PATH,
-        describe: 'Config file path',
-        type: 'string'
-    }).argv;
-    const configPath = argv.config;
-    new Config(configPath, (err, config) => {
-        if (err) { throw err; }
-        config.validate();
-        start(config);
-    });
+    const argv = require('yargs')
+        .option('config', {
+            alias: 'c',
+            demandOption: true,
+            default: Config.DEFAULT_CONFIG_PATH,
+            describe: 'Configuration file path',
+            type: 'string'
+        })
+        .command({
+            command: 'run',
+            aliases: ['$0', 'r'],
+            handler: (argv) => {
+                const configPath = argv.config;
+                new Config(configPath, (err, config) => {
+                    if (err) { throw err; }
+                    config.validate();
+                    start(config);
+                });
+            }
+        })
+        .command({
+            command: 'log [logFile] [loggingDuration]',
+            aliases: ['l'],
+            desc: 'Log surrounding BLE beacons',
+            builder: (yargs) => {
+                yargs.default('logFile', './beacons.json');
+                yargs.default('loggingDuration', 5000);
+            },
+            handler: (argv) => {
+                const configPath = argv.config;
+                new Config(configPath, (err, config) => {
+                    if (err) { throw err; }
+                    const BeaconLogger = require('./src/BeaconLogger');
+                    const beaconLogger = new BeaconLogger(config, argv.logFile);
+                    beaconLogger.start(argv.loggingDuration);
+                });
+            }
+        })
+        .demandCommand(1, 'You need to choose at least one command before moving on')
+        .help().argv;
 }
 main();
