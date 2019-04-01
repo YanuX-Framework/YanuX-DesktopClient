@@ -1,21 +1,20 @@
 const fs = require('fs');
 const _ = require('lodash');
+const JSONStream = require('JSONStream');
 const Config = require('./Config');
 const BeaconScanner = require('./Scanner/BeaconScanner');
 const BeaconMatcher = require('./Scanner/BeaconMatcher');
 
 module.exports = class BeaconLogger {
-    constructor(config, logFile) {
+    constructor(config) {
         this.config = config;
-        this.logFile = logFile;
-        this.log = {
-            creationTimestamp: new Date().getTime(),
-            name: logFile,
-            sessions: { entries: [] }
-        };
+        this.logging = false;
         this.loggingDuration = null;
+        this.entryCounter = null;
         this.loggingStartTime = null;
-        this.entryCounter = 0;
+        this.writeStream = null;
+        this.jsonStream = null;
+
         this.beaconScan = config.beacon_scan || Config.DEFAULT_BEACON_SCAN;
         this.beaconMatcherParameters = config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS;
         this.beaconsPrintUpdated = config.beacons_print_updated || Config.DEFAULT_BEACONS_PRINT_UPDATED;
@@ -32,12 +31,12 @@ module.exports = class BeaconLogger {
                 if (this.beaconsPrintUpdated) {
                     this.printBeacons('beaconsUpdated', this.beaconsClearConsole)(beacons);
                 }
-                for(let key in beacons) {
-                    this.log.sessions.entries.push({
+                for (let key in beacons) {
+                    this.jsonStream.write({
                         id: this.entryCounter++,
                         beacon: beacons[key]
                     });
-                }                
+                }
                 if (new Date().getTime() > this.loggingStartTime + this.loggingDuration) {
                     this.stop();
                 }
@@ -55,26 +54,40 @@ module.exports = class BeaconLogger {
     set config(config) {
         this._config = config;
     }
-    start(loggingDuration) {
+    start(logFile, loggingDuration) {
         if (this.beaconScanner) {
-            this.beaconScanner.startScanning(this.errorCallback);
+            this.logFile = logFile;
             this.loggingDuration = loggingDuration;
-            this.loggingStartTime = new Date().getTime();
-            console.log('Logging surrounding BLE Beacons for a total of', this.loggingDuration, 'ms');
+            this.entryCounter = 0;
+            this.writeStream = fs.createWriteStream(this.logFile);
+            this.jsonStream = JSONStream
+                .stringify(`{"creationTimestamp":${new Date().getTime()},"name":"${this.logFile}","sessions":{"entries":[`, ',', `]}}`)
+            this.jsonStream.pipe(this.writeStream);
+            this.beaconScanner.startScanning(e => {
+                if (e) { errorCallback(e); }
+                else {
+                    this.logging = true;
+                    this.loggingStartTime = new Date().getTime();
+                    console.log('Logging surrounding BLE Beacons for a total of', this.loggingDuration, 'ms');
+                }
+            });
         }
     }
     stop() {
         if (this.beaconScanner) {
-            this.beaconScanner.stopScanning(this.errorCallback);
-            this.loggingStartTime = null;
-            this.entryCounter = 0;
-            fs.writeFile(this.logFile, JSON.stringify(this.log), e => {
-                if(e) {
-                    console.error('Could not save the log to disk.')
-                } else {
-                    console.log('Saved the log to disk.');
-                }
-            });
+            if (this.logging) {
+                this.logging = false;
+                this.beaconScanner.stopScanning(e => {
+                    if (e) { errorCallback(e); }
+                    else {
+                        this.loggingStartTime = null;
+                        this.entryCounter = 0;
+                        this.jsonStream.end();
+                        this.writeStream.end();
+                        console.log('Saved the log to disk.');
+                    }
+                });
+            }
         }
     }
     printBeacons(title = null, clear = false) {

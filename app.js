@@ -58,8 +58,8 @@ function main() {
                 new Config(configPath, (err, config) => {
                     if (err) { throw err; }
                     const BeaconLogger = require('./src/BeaconLogger');
-                    const beaconLogger = new BeaconLogger(config, argv.logFile);
-                    beaconLogger.start(argv.loggingDuration);
+                    const beaconLogger = new BeaconLogger(config);
+                    beaconLogger.start(argv.logFile, argv.loggingDuration);
                 });
             }
         })
