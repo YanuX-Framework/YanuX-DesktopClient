@@ -34,7 +34,7 @@ module.exports = class BeaconLogger {
                 for (let key in beacons) {
                     this.jsonStream.write({
                         id: this.entryCounter++,
-                        beacon: beacons[key]
+                        reading: beacons[key]
                     });
                 }
                 if (new Date().getTime() > this.loggingStartTime + this.loggingDuration) {
