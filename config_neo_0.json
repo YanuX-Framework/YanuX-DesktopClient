@@ -28,7 +28,32 @@
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "view": true,
-        "control": true
+        "control": true,
+        "display": [{
+                "resolution": [1920,1080],
+                "pixelDensity": 96, 
+                "bitDepth": 24,
+                "size": [481,271],
+                "refreshRate": 60
+        }],
+        "speaker": [{
+            "type": "loadspeaker",
+            "channels": 2,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        }],
+        "camera": [{
+            "resolution": [1280,720],
+            "bitDepth": 24,
+            "refreshRate": 60
+        }],
+        "microphone": [{
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        }],
+        "input": ["keyboard", "mouse"],
+        "sensors": []
     },
     "access_token": "tyDUPb4BSdjKGhATgPfEmmvdZRu0HmEfcOVoLUQr0JbNoo4mVjCb3ChdU7bI20k0Gfg6sP9Lol6Q8t1MjH9LFvX0rE9zK1vAMq2XiEaklFtHRWVO8JgeLo7seJZVrNvl8pDMyTK8lCRH3BmbqmrabTM5zN62AlsIOvbglKgCvCR64m5FCJlHFG0hHjKAsuXTsSQ2MqTy61t899UDDaWfn4GvC3Sa51wtGyWN2FpBlUKBXn2HDCn9ovK31B1PPAuc",
     "refresh_token": "l3LU6ZjIMDaYEBPpgAfEF7Iydzoi9UVl07LTgSpUGqjataifJ1FE2bH5Zex3AODBQjLoRHieOt07PLYT2RsaamOrvkbFR9Ysy5moammSWoBap7kLKnqlcOi7M6FbOdl0tNPOhZinMWvom1FVztT1os2HUXcHZbiGBXWwTHFYH8EkdhdYJpcBuh6bCz9Nibm8RoSeTgnRQPbfCtwht8dq602HhuaujbG2XrPl0zTwQQMz4NcDQTvgA1fR6d3sRwOE"
