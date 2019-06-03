@@ -36,7 +36,7 @@
                 "size": [481,271],
                 "refreshRate": 60
         }],
-        "speaker": [{
+        "speakers": [{
             "type": "loadspeaker",
             "channels": 2,
             "bitDepth": 16,
