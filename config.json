@@ -7,7 +7,7 @@
     "broker_url": "http://localhost:3002/",
     "oauth2_authorization_server_url": "http://localhost:3001/",
     "beacon_scan": true,
-    "beacon_advertise": false,
+    "beacon_advertise": true,
     "beacon_matcher_parameters": [
         null,
         "iBeacon",
@@ -23,23 +23,39 @@
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
-    "beacons_refresh_interval": 500,
-    "beacons_inactivity_timer": 1000,
+    "beacons_refresh_interval": 250,
+    "beacons_inactivity_timer": 3000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
-        "display": {
-            "resolution": [
-                1920,
-                1080
-            ],
-            "pixelDensity": 96,
-            "bitDepth": 24,
-            "size": [
-                481,
-                271
-            ],
-            "refreshRate": 60
-        },
+        "type": "laptop",
+        "display": [
+            {
+                "type": "internal",
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "bitDepth": 24,
+                "size": [
+                    345.5,
+                    196.5
+                ],
+                "refreshRate": 60
+            },
+            {
+                "type": "external",
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "bitDepth": 24,
+                "size": [
+                    477,
+                    268
+                ],
+                "refreshRate": 60
+            }
+        ],
         "speakers": {
             "type": "loudspeaker",
             "channels": 2,
@@ -47,6 +63,7 @@
             "samplingRate": 44100
         },
         "camera": {
+            "type": "webcam",
             "resolution": [
                 1280,
                 720

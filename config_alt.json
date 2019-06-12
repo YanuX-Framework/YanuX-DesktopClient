@@ -23,47 +23,93 @@
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
-    "beacons_refresh_interval": 500,
-    "beacons_inactivity_timer": 1000,
+    "beacons_refresh_interval": 250,
+    "beacons_inactivity_timer": 3000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf09",
     "device_capabilities": {
+        "type": "smartphone",
         "display": {
             "resolution": [
-                1920,
-                1080
+                1080,
+                2248
             ],
-            "pixelDensity": 96,
+            "orientation": "portrait",
+            "pixelDensity": 402,
             "bitDepth": 24,
             "size": [
-                481.0,
-                271.0
+                69.5,
+                142.5
             ],
             "refreshRate": 60
         },
         "speakers": {
             "type": "loudspeaker",
-            "channels": 2,
+            "channels": 1,
             "bitDepth": 16,
             "samplingRate": 44100
         },
-        "camera": {
-            "resolution": [
-                1280,
-                720
-            ],
-            "bitDepth": 24,
-            "refreshRate": 60
-        },
+        "camera": [
+            {
+                "type": "main",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "telephoto",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "selfie",
+                "resolution": [
+                    5184,
+                    3880
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            }
+        ],
         "microphone": {
             "channels": 1,
             "bitDepth": 16,
             "samplingRate": 44100
         },
         "input": [
-            "keyboard",
-            "mouse"
+            "touchscreen",
+            "speech recognition"
         ],
-        "sensors": []
+        "sensors": [
+            "battery",
+            "gps",
+            "wifi",
+            "bluetooth",
+            "bluetooth low energy",
+            "gravity",
+            "linear acceleration",
+            "rotation vector",
+            "rotation vector (game)",
+            "rotation vector (geomagnetic)",
+            "step counter",
+            "step detector",
+            "pressure",
+            "magnetic field",
+            "magnetic field (uncalibrated)",
+            "light",
+            "gyroscope",
+            "gyroscope (uncalibrated)",
+            "accelerometer",
+            "proximity",
+            "orientation (deprecated)",
+            "significant motion"
+        ]
     },
     "access_token": "PCMejh4H7vwpZfavFFwcdcYbSVCccSSLETEiTytrJRaFQZW1OgXoSUe4EB0meXZgyZ1BdV9xgNU6kyEgCwU4t2M2tEr0eJqADLLFi2SetqHgc7S7vkoeFdEwYTHmw19DdRSUbHv06bbMu3gAqzOTbkcfGSIRPGxaLE1adleiOnxjebFmYlXnqkdRALhcQBiQYBDzyTo8PbF1qBFdA4gFut0FURgGr9oYgoA25AUXICEiPN2rvtLGmC1XuxCVmhXC",
     "refresh_token": "GJz9khYDaNcQEM3zALDrB11oGdigr4im29VWhrDMtmb0jJB8RAc4XqD1EmBHM3DWGixN7Fm2vFjW5ivNDZRrHDXC01DNrBVcWkfkjrtQMp3A2wIPIRqsY4yoVjBno5oXShkTogOOEOip4PBFLyaYz6p3yjc4AnEPmqxV76bfQ86vHunVjhbV7FSIl6H3TZA5JgwaBxAcvb1Gx7bhue8dkJYmQbmtA8A8KVaLXdSNliNRZBAzPJzO2PEkL70qWMTl"
