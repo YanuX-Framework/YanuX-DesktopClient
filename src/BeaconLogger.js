@@ -16,6 +16,7 @@ module.exports = class BeaconLogger {
         this.jsonStream = null;
 
         this.beaconScan = config.beacon_scan || Config.DEFAULT_BEACON_SCAN;
+        this.beaconScanRealtimeUpdates = config.beacon_scan_realtime_updates || Config.DEFAULT_BEACON_SCAN_REALTIME_UPDATES;
         this.beaconMatcherParameters = config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS;
         this.beaconsPrintUpdated = config.beacons_print_updated || Config.DEFAULT_BEACONS_PRINT_UPDATED;
         this.beaconsPrintCleared = config.beacons_print_cleared || Config.DEFAULT_BEACONS_CLEAR_CONSOLE;
@@ -23,7 +24,7 @@ module.exports = class BeaconLogger {
         this.beaconsRefreshInterval = config.beacons_refresh_interval || Config.DEFAULT_BEACONS_REFRESH_INTERVAL;
         this.beaconsInactivityTimer = config.beacons_inactivity_timer || Config.DEFAULT_BEACONS_INACTIVITY_TIMER;
         if (this.beaconScan && _.isArray(this.beaconMatcherParameters)) {
-            this.beaconScanner = new BeaconScanner(this.beaconsRefreshInterval, this.beaconsInactivityTimer);
+            this.beaconScanner = new BeaconScanner(this.beaconScanRealtimeUpdates, this.beaconsRefreshInterval, this.beaconsInactivityTimer);
             this.beaconMatcherParameters = this.beaconMatcherParameters.slice(0);
             this.beaconMatcherParameters.unshift(null);
             this.beaconScanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, this.beaconMatcherParameters)));

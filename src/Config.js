@@ -19,6 +19,7 @@ module.exports = class Config {
     static get DEFAULT_CONFIG_PATH() { return './config.json'; }
     static get DEFAULT_STRINGIFY_SPACES() { return 4; }
     static get DEFAULT_BEACON_SCAN() { return false; }
+    static get DEFAULT_BEACON_SCAN_REALTIME_UPDATES() { return false; }
     static get DEFAULT_BEACON_ADVERTISE() { return false; }
     static get DEFAULT_BEACON_MATCHER_PARAMETERS() { return null; }//[null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]];
     static get DEFAULT_BEACON_ADVERTISER_PARAMETERS() { return null }//["113069ec6e644bd36810de01b36e8a3e", 100, 100];
@@ -64,6 +65,10 @@ module.exports = class Config {
         if (!_.isNil(this.beacon_scan) &&
             !_.isBoolean(this.beacon_scan)) {
             throw new Error('"beacon_scan" value is invalid');
+        }
+        if (!_.isNil(this.beacon_scan_realtime_updates) &&
+            !_.isBoolean(this.beacon_scan_realtime_updates)) {
+            throw new Error('"beacon_scan_realtime_updates" value is invalid');
         }
         if (!_.isNil(this.beacon_advertise) &&
             !_.isBoolean(this.beacon_advertise)) {

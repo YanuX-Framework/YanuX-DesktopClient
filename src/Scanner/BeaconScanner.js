@@ -5,10 +5,12 @@ const BeaconDetector = require('./BeaconDetector');
 const BeaconMatcher = require('./BeaconMatcher');
 
 module.exports = class BeaconScanner extends EventEmitter {
-    constructor(refreshInterval, inactivityTimer) {
+    constructor(beaconScanRealtimeUpdates, refreshInterval, inactivityTimer) {
         super();
-        this.beacons = {};
+        this.beaconsCreated = {};
+        this.beaconsUpdated = {};
         this._beaconDetector = new BeaconDetector();
+        this._beaconScanRealtimeUpdates = beaconScanRealtimeUpdates;
         this._refreshInterval = refreshInterval;
         this._inactivityTimer = inactivityTimer;
         this.clearExpiredBeaconsPolling = null;
@@ -21,15 +23,34 @@ module.exports = class BeaconScanner extends EventEmitter {
                 noble.startScanning([], true, callback);
                 this.clearExpiredBeaconsPolling = setInterval(() => {
                     let currentTime = new Date().getTime();
-                    this.beacons = _.omitBy(this.beacons, beacon => {
+                    const clearExpiredBeacons = beacon => {
                         if (currentTime - beacon.timestamp > this._inactivityTimer) {
                             this.emit('beaconRemoved', beacon);
                             return true;
                         } else {
                             return false;
                         }
-                    });
-                    this.emit('beaconsCleared', this.beacons);
+                    };
+                    this.beaconsCreated = _.omitBy(this.beaconsCreated, clearExpiredBeacons);
+                    this.beaconsUpdated = _.omitBy(this.beaconsUpdated, clearExpiredBeacons);
+                    this.emit('beaconsCleared', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
+                    /*
+                     * NOTE:
+                     * This is just a stopgap the approach I'm using to avoid being TOO sensitive.
+                     * Beacons were just accidentally being removed from the beacon scanner.
+                     * Moreover, contacting the YanuX Broker whenever a new beacon packet is detected should provide better latency.
+                     * However, such an approach was also very resource intensive.
+                     * Both approaches pros and cons and I'm still not sure which one I'll end up sticking with.
+                     * I'll probably have to mix both up to find a good compromise.
+                     * I'll need real time updates to determine distance from signal strength.
+                     * Such measurements will be needed for determining a running average and to feed a regression algorithm.  
+                     * Instead of doing it on the server side I may end up doing it on the client-side to share the load.
+                     */
+                    if (!this._beaconScanRealtimeUpdates) {
+                        Object.values(this.beaconsCreated).forEach(beacon => this.emit('beaconCreated', beacon))
+                        Object.values(this.beaconsUpdated).forEach(beacon => this.emit('beaconUpdated', beacon))
+                        this.emit('beaconsUpdated', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
+                    }
                 }, this._refreshInterval);
             }
         });
@@ -38,17 +59,24 @@ module.exports = class BeaconScanner extends EventEmitter {
             const beacon = this._beaconDetector.beacon;
             this.matchers.forEach(matcher => {
                 if (matcher.match(beacon)) {
-                    if (beacon.key in this.beacons) {
-                        this.beacons[beacon.key] = beacon;
-                        this.emit('beaconUpdated', beacon, peripheral);
+                    if (beacon.key in this.beaconsCreated || beacon.key in this.beaconsUpdated) {
+                        delete this.beaconsCreated[beacon.key];
+                        this.beaconsUpdated[beacon.key] = beacon;
+                        if (this._beaconScanRealtimeUpdates) {
+                            this.emit('beaconCreated', beacon);
+                        }
                     } else {
-                        this.beacons[beacon.key] = beacon;
-                        this.emit('beaconCreated', beacon, peripheral);
+                        this.beaconsCreated[beacon.key] = beacon;
+                        if (this._beaconScanRealtimeUpdates) {
+                            this.emit('beaconUpdated', beacon)
+                        }
+                    }
+                    if (this._beaconScanRealtimeUpdates) {
+                        this.emit('beaconsUpdated', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
                     }
                 }
-            })
-            this.emit('beaconsUpdated', this.beacons);
-        })
+            });
+        });
     }
     stopScanning(callback) {
         clearInterval(this.clearExpiredBeaconsPolling);

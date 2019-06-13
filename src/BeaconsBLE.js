@@ -8,6 +8,7 @@ module.exports = class BeaconsBLE {
     constructor(config) {
         this.config = config;
         this.beaconScan = config.beacon_scan || Config.DEFAULT_BEACON_SCAN;
+        this.beaconScanRealtimeUpdates = config.beacon_scan_realtime_updates || Config.DEFAULT_BEACON_SCAN_REALTIME_UPDATES;
         this.beaconAdvertise = config.beacon_advertise || Config.DEFAULT_BEACON_ADVERTISE;
         this.beaconAdvertiserParameters = config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS;
         this.beaconMatcherParameters = config.beacon_matcher_parameters || Config.DEFAULT_BEACON_MATCHER_PARAMETERS;
@@ -22,7 +23,7 @@ module.exports = class BeaconsBLE {
             this.iBeaconAdvertiser = new (Function.prototype.bind.apply(IBeaconAdvertiser, this.beaconAdvertiserParameters));
         }
         if (this.beaconScan && _.isArray(this.beaconMatcherParameters)) {
-            this.beaconScanner = new BeaconScanner(this.beaconsRefreshInterval, this.beaconsInactivityTimer);
+            this.beaconScanner = new BeaconScanner(this.beaconScanRealtimeUpdates, this.beaconsRefreshInterval, this.beaconsInactivityTimer);
             this.beaconMatcherParameters = this.beaconMatcherParameters.slice(0);
             this.beaconMatcherParameters.unshift(null);
             this.beaconScanner.addMatcher(new (Function.prototype.bind.apply(BeaconMatcher, this.beaconMatcherParameters)));

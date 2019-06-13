@@ -76,20 +76,6 @@ module.exports = class BrokerConnection {
                 }).then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
-                    /**
-                     * Server-side events
-                     */
-                    /*
-                    this.beaconsService.on('created', beacon => {
-                        console.log('Event Beacon Created', beacon)
-                    });
-                    this.beaconsService.on('patched', beacon => {
-                        console.log('Event Beacon Patched', beacon)
-                    });
-                    this.beaconsService.on('removed', beacon => {
-                        console.log('Event Beacon Removed', beacon)
-                    });
-                    */
                     process.on('SIGINT', () => {
                         this.tidyUpBeacons()
                             .then(() => {
@@ -103,7 +89,8 @@ module.exports = class BrokerConnection {
                     this.tidyUpBeacons().then(() => {
                         if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
                             this.beaconsBLE.beaconScanner.removeAllListeners();
-                            this.beaconsBLE.beaconScanner.beacons.length = 0;
+                            this.beaconsBLE.beaconScanner.beaconsCreated = {};
+                            this.beaconsBLE.beaconScanner.beaconsUpdated = {};
                             this.beaconsBLE.beaconScanner.on('beaconCreated', beacon => {
                                 this.beaconsService.create({
                                     user: user._id,
