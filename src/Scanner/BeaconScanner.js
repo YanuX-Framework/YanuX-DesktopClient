@@ -3,6 +3,7 @@ const noble = require('@abandonware/noble');
 const EventEmitter = require('events');
 const BeaconDetector = require('./BeaconDetector');
 const BeaconMatcher = require('./BeaconMatcher');
+const Beacon = require('./Beacon');
 
 module.exports = class BeaconScanner extends EventEmitter {
     constructor(beaconScanRealtimeUpdates, refreshInterval, inactivityTimer) {
@@ -16,6 +17,14 @@ module.exports = class BeaconScanner extends EventEmitter {
         this.clearExpiredBeaconsPolling = null;
         this._defaultMatcher = new BeaconMatcher();
         this.matchers = [this._defaultMatcher];
+        /*
+         * TODO: 
+         * Perhaps I should add separate configuration variable only for the masurements inactivity timer!
+         * Moreover, I'm not so sure that building this stuff into the Beacon class is the best idea ever.
+         * The class is also used for other things that don't require that added complexity.
+         * However, the way it is implemented now I don't think that the basic purposes are being hurt that much.
+         */
+        Beacon.measurementsInactivityTimer = this._inactivityTimer;
     }
     startScanning(callback) {
         noble.on('stateChange', state => {
@@ -23,16 +32,18 @@ module.exports = class BeaconScanner extends EventEmitter {
                 noble.startScanning([], true, callback);
                 this.clearExpiredBeaconsPolling = setInterval(() => {
                     let currentTime = new Date().getTime();
-                    const clearExpiredBeacons = beacon => {
+                    const clearExpiredBeacons = beaconsCollection => beacon => {
                         if (currentTime - beacon.timestamp > this._inactivityTimer) {
-                            this.emit('beaconRemoved', beacon);
+                            beaconsCollection[beacon.key].addMeasurement(beacon);
+                            this.emit('beaconRemoved', beaconsCollection[beacon.key]);
                             return true;
                         } else {
                             return false;
                         }
                     };
-                    this.beaconsCreated = _.omitBy(this.beaconsCreated, clearExpiredBeacons);
-                    this.beaconsUpdated = _.omitBy(this.beaconsUpdated, clearExpiredBeacons);
+
+                    this.beaconsCreated = _.omitBy(this.beaconsCreated, clearExpiredBeacons(this.beaconsCreated));
+                    this.beaconsUpdated = _.omitBy(this.beaconsUpdated, clearExpiredBeacons(this.beaconsUpdated));
                     this.emit('beaconsCleared', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
                     /*
                      * NOTE:
@@ -47,8 +58,8 @@ module.exports = class BeaconScanner extends EventEmitter {
                      * Instead of doing it on the server side I may end up doing it on the client-side to share the load.
                      */
                     if (!this._beaconScanRealtimeUpdates) {
-                        Object.values(this.beaconsCreated).forEach(beacon => this.emit('beaconCreated', beacon))
-                        Object.values(this.beaconsUpdated).forEach(beacon => this.emit('beaconUpdated', beacon))
+                        Object.values(this.beaconsCreated).forEach(beacon => this.emit('beaconCreated', beacon));
+                        Object.values(this.beaconsUpdated).forEach(beacon => this.emit('beaconUpdated', beacon));
                         this.emit('beaconsUpdated', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
                     }
                 }, this._refreshInterval);
@@ -60,15 +71,19 @@ module.exports = class BeaconScanner extends EventEmitter {
             this.matchers.forEach(matcher => {
                 if (matcher.match(beacon)) {
                     if (beacon.key in this.beaconsCreated || beacon.key in this.beaconsUpdated) {
-                        delete this.beaconsCreated[beacon.key];
-                        this.beaconsUpdated[beacon.key] = beacon;
+                        if (beacon.key in this.beaconsCreated) {
+                            this.beaconsUpdated[beacon.key] = this.beaconsCreated[beacon.key];
+                            delete this.beaconsCreated[beacon.key];
+                        }
+                        this.beaconsUpdated[beacon.key].addMeasurement(beacon);
                         if (this._beaconScanRealtimeUpdates) {
-                            this.emit('beaconCreated', beacon);
+                            this.emit('beaconUpdated', this.beaconsUpdated[beacon.key]);
                         }
                     } else {
                         this.beaconsCreated[beacon.key] = beacon;
+                        this.beaconsCreated[beacon.key].addMeasurement(beacon);
                         if (this._beaconScanRealtimeUpdates) {
-                            this.emit('beaconUpdated', beacon)
+                            this.emit('beaconCreated', this.beaconsCreated[beacon.key])
                         }
                     }
                     if (this._beaconScanRealtimeUpdates) {
