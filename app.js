@@ -4,6 +4,7 @@
  */
 const _ = require('lodash');
 const Config = require('./src/Config');
+const Capabilities = require('./src/Capabilities');
 const Zeroconf = require('./src/Zeroconf');
 const BrokerConnection = require('./src/BrokerConnection');
 const BeaconsBLE = require('./src/BeaconsBLE');
@@ -37,12 +38,16 @@ function main() {
             command: 'run',
             aliases: ['$0', 'r'],
             handler: (argv) => {
-                const configPath = argv.config;
-                new Config(configPath, (err, config) => {
-                    if (err) { throw err; }
-                    config.validate();
-                    start(config);
-                });
+                new Capabilities().collect()
+                    .then(capabilities => {
+                        const configPath = argv.config;
+                        new Config(configPath, (err, config) => {
+                            if (err) { throw err; }
+                            config.device_capabilities = _.merge({}, [config.device_capabilities, capabilities]);
+                            config.validate();
+                            start(config);
+                        });
+                    }).catch(e => console.error('Could not collect the device\'s capabilities', e));
             }
         })
         .command({
