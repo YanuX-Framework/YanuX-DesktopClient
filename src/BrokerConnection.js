@@ -66,13 +66,9 @@ module.exports = class BrokerConnection {
         if (credentials.accessToken) {
             this.client.authenticate(credentials)
                 .then(response => {
-                    this.jwtAccessToken = response.accessToken;
-                    console.log('Logged in successfully with the following JWT: ' + response.accessToken);
                     //TODO: Customize verification so that it checks if the JWT signature is valid just like I'm doing on Android.
-                    return this.client.passport.verifyJWT(response.accessToken);
-                }).then(payload => {
-                    console.log('JWT Payload', payload);
-                    return this.usersService.get(payload.userId);
+                    console.log('Logged in successfully with the following JWT: ' + response.accessToken);
+                    return this.usersService.get(response.user ? response.user._id : response.authentication.payload.user._id);
                 }).then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
