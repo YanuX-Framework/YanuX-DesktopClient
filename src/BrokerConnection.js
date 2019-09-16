@@ -1,9 +1,11 @@
+const util = require('util');
 const _ = require('lodash');
 const io = require('socket.io-client');
 const feathers = require('@feathersjs/feathers');
 const socketio = require('@feathersjs/socketio-client');
 const auth = require('@feathersjs/authentication-client');
 const request = require('request');
+const jsonwebtoken = require('jsonwebtoken');
 
 module.exports = class BrokerConnection {
     constructor(config, beaconsBLE) {
@@ -66,10 +68,12 @@ module.exports = class BrokerConnection {
         if (credentials.accessToken) {
             this.client.authenticate(credentials)
                 .then(response => {
-                    //TODO: Customize verification so that it checks if the JWT signature is valid just like I'm doing on Android.
-                    console.log('Logged in successfully with the following JWT: ' + response.accessToken);
-                    return this.usersService.get(response.user ? response.user._id : response.authentication.payload.user._id);
-                }).then(user => {
+                    console.log('Logged in successfully with the following JWT:\n' + response.accessToken + '\n');
+                    console.log('Verifying it using this public key:\n' + this.config.broker_public_key);
+                    return util.promisify(jsonwebtoken.verify)(response.accessToken, this.config.broker_public_key);
+                })
+                .then(payload => this.usersService.get(payload.user._id))
+                .then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
                     process.on('SIGINT', () => {

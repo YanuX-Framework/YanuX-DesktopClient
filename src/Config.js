@@ -40,7 +40,7 @@ module.exports = class Config {
         }
         fs.writeFile(this.path, JSON.stringify(this, null, Config.DEFAULT_STRINGIFY_SPACES), writeCallback);
     }
-    validate(path) {
+    validate() {
         if (!_.isBoolean(this.allow_zeroconf)) {
             throw new Error('"allow_zeroconf" value is either missing or invalid');
         }
@@ -58,6 +58,11 @@ module.exports = class Config {
         }
         if (!_.isString(this.broker_url)) {
             throw new Error('"broker_url" value is either missing or invalid');
+        }
+        if (!_.isString(this.broker_public_key_path)) {
+            throw new Error('"broker_public_key_path" value is either missing or invalid');
+        } else {
+            this.broker_public_key = fs.readFileSync(this.broker_public_key_path);
         }
         if (!_.isString(this.oauth2_authorization_server_url)) {
             throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
