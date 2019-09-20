@@ -43,7 +43,7 @@ function main() {
                         const configPath = argv.config;
                         new Config(configPath, (err, config) => {
                             if (err) { throw err; }
-                            config.device_capabilities = _.merge({}, [config.device_capabilities, capabilities]);
+                            config.device_capabilities = _.merge({}, capabilities, config.device_capabilities);
                             config.validate();
                             start(config);
                         });

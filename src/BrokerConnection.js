@@ -1,3 +1,4 @@
+const fs = require('fs');
 const util = require('util');
 const _ = require('lodash');
 const io = require('socket.io-client');
@@ -11,6 +12,7 @@ module.exports = class BrokerConnection {
     constructor(config, beaconsBLE) {
         this.config = config;
         this.beaconsBLE = beaconsBLE;
+        this.brokerPublicKey = fs.readFileSync(this.config.broker_public_key_path);
     }
     get config() {
         return this._config;
@@ -31,7 +33,10 @@ module.exports = class BrokerConnection {
         this._jwtAccessToken = jwtAccessToken;
     }
     connect() {
-        this.socket = io(this.config.broker_url);
+        this.socket = io(this.config.broker_url, {
+            transports: ['websocket'],
+            forceNew: true
+        });
         this.client = feathers();
         this.client.configure(socketio(this.socket));
         this.client.configure(auth());
@@ -41,6 +46,12 @@ module.exports = class BrokerConnection {
         this.usersService = this.client.service('users')
         this.devicesService = this.client.service('devices');
         this.beaconsService = this.client.service('beacons');
+
+        this.beaconsService.on('created', beacon => console.log('Received Beacon Created Event'));
+        this.beaconsService.on('updated', beacon => console.log('Received Beacon Updated Event'));
+        this.beaconsService.on('patched', beacon => console.log('Received Beacon Patched Event'));
+        this.beaconsService.on('removed', beacon => console.log('Received Beacon Removed Event'));
+
         this.client.io.on('reconnect', attempt => {
             console.log(`Reconnected after ${attempt} attempts`);
             this.authenticate();
@@ -69,8 +80,8 @@ module.exports = class BrokerConnection {
             this.client.authenticate(credentials)
                 .then(response => {
                     console.log('Logged in successfully with the following JWT:\n' + response.accessToken + '\n');
-                    console.log('Verifying it using this public key:\n' + this.config.broker_public_key);
-                    return util.promisify(jsonwebtoken.verify)(response.accessToken, this.config.broker_public_key);
+                    console.log('Verifying it using this public key:\n' + this.brokerPublicKey);
+                    return util.promisify(jsonwebtoken.verify)(response.accessToken, this.brokerPublicKey);
                 })
                 .then(payload => this.usersService.get(payload.user._id))
                 .then(user => {
@@ -88,9 +99,9 @@ module.exports = class BrokerConnection {
                     });
                     this.tidyUpBeacons().then(() => {
                         if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
-                            this.beaconsBLE.beaconScanner.removeAllListeners();
                             this.beaconsBLE.beaconScanner.beaconsCreated = {};
                             this.beaconsBLE.beaconScanner.beaconsUpdated = {};
+                            this.beaconsBLE.beaconScanner.removeAllListeners();
                             this.beaconsBLE.beaconScanner.on('beaconCreated', beacon => {
                                 this.beaconsService.create({
                                     user: user._id,
@@ -141,49 +152,50 @@ module.exports = class BrokerConnection {
             .then(beacons => console.log('Removed any outstanding beacons:', beacons));
     }
     handleError(e) {
-        console.error('Error', e);
         if (e.name === 'NotAuthenticated') {
             if (e.message === 'jwt expired') {
                 this.jwtAccessToken = null;
-            }
-            this.authenticate();
-        } else if (e.message === 'The provided access token is not valid.') {
-            console.error('Authentication Error', e);
-            if (this.config.refresh_token) {
-                console.log('Trying to get a new token using the Refresh Token');
-                request.post({
-                    url: this.config.oauth2_authorization_server_url + 'oauth2/token',
-                    auth: {
-                        user: this.config.client_id,
-                        pass: this.config.client_secret,
-                        sendImmediately: true
-                    },
-                    form: {
-                        refresh_token: this.config.refresh_token,
-                        grant_type: 'refresh_token',
-                        redirect_uri: this.config.redirect_uri
-                    },
-                    json: true
-                }, (err, resp, body) => {
-                    if (err) { return console.log(err); }
-                    if (_.isNil(body.error)) {
-                        console.log('Access and Refresh Tokens retrieved.');
-                        this.config.access_token = body.access_token;
-                        this.config.refresh_token = body.refresh_token;
-                        this.config.save(err => {
-                            if (err) { throw err; }
-                            else { this.connect(); }
-                        });
-                    } else {
-                        console.log("Invalid Refresh Token:", body.error);
-                        this.config.deleteTokens();
-                        this.config.validate();
-                    }
-                });
+                this.authenticate();
+            } else if (e.message === 'The provided access token is not valid.') {
+                if (this.config.refresh_token) {
+                    console.log('Trying to get a new token using the Refresh Token');
+                    request.post({
+                        url: this.config.oauth2_authorization_server_url + 'oauth2/token',
+                        auth: {
+                            user: this.config.client_id,
+                            pass: this.config.client_secret,
+                            sendImmediately: true
+                        },
+                        form: {
+                            refresh_token: this.config.refresh_token,
+                            grant_type: 'refresh_token',
+                            redirect_uri: this.config.redirect_uri
+                        },
+                        json: true
+                    }, (err, resp, body) => {
+                        if (err) { return console.log(err); }
+                        if (_.isNil(body.error)) {
+                            console.log('Access and Refresh Tokens retrieved.');
+                            this.config.access_token = body.access_token;
+                            this.config.refresh_token = body.refresh_token;
+                            this.config.save(err => {
+                                if (err) { throw err; }
+                                else { this.connect(); }
+                            });
+                        } else {
+                            console.log("Invalid Refresh Token:", body.error);
+                            this.config.deleteTokens();
+                            this.config.validate();
+                        }
+                    });
+                }
             } else {
                 this.config.deleteTokens();
                 this.config.validate();
             }
+            this.authenticate();
+        } else {
+            console.error('Unknown Error:', e);
         }
     }
 }

@@ -29,61 +29,8 @@
     "beacons_inactivity_timer": 5000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
-        "type": "laptop",
-        "display": [
-            {
-                "type": "internal",
-                "resolution": [
-                    1920,
-                    1080
-                ],
-                "bitDepth": 24,
-                "size": [
-                    345.5,
-                    196.5
-                ],
-                "refreshRate": 60
-            },
-            {
-                "type": "external",
-                "resolution": [
-                    1920,
-                    1080
-                ],
-                "bitDepth": 24,
-                "size": [
-                    477,
-                    268
-                ],
-                "refreshRate": 60
-            }
-        ],
-        "speakers": {
-            "type": "loudspeaker",
-            "channels": 2,
-            "bitDepth": 16,
-            "samplingRate": 44100
-        },
-        "camera": {
-            "type": "webcam",
-            "resolution": [
-                1280,
-                720
-            ],
-            "bitDepth": 24,
-            "refreshRate": 60
-        },
-        "microphone": {
-            "channels": 1,
-            "bitDepth": 16,
-            "samplingRate": 44100
-        },
-        "input": [
-            "keyboard",
-            "mouse"
-        ],
-        "sensors": []
+        "type": "laptop"
     },
-    "access_token": "FQFBTOgSDUl0wt9x5MAv2nDDTlS3ofNDzEkx0U76mne3riES7bDj9odXJq3pZ8fmZ6QF1XnNGMGurS9Fsea83i24cGF3yaJ9tdhfIE47lVoAzXSHdtd7pBp1PtKzkPQrzR0C3H7TQuzEA67E1vpqfwnsUaqJPRLRwAVoP6Z7RyGdgb5f8yHMX1T6cbXQTFLi5LRekKVfRFSS5OSorYeAYFb9QOLHMxtjXfORS0Lx6AIh2d0TsoSQ6M0wfdZ9EN6v",
-    "refresh_token": "9wKafud5AanTMAsE0WT2RnHenCZR09rzrgt3KvKZXLE79FlOBsmcbeT3Z40iikk6MVexu2Nj3FWxgZSxgg2VOZAbrIyjKcLqsOsMVXnBgzM88ycA0Yd0esM7dRoq99LWY2R0glYCBd7UKKqeWi57HXYP6fUjyEQVKfnXGpJXovJm4L94EzlD2tuBt302YdQ275dNYDBje65iNAXHOCV5NZBP6HcduVFOICxEfQWhpzpk2K1822s60pONPUBbVrmC"
+    "access_token": "nDxRwekqcb2OPbZVixHGnQ4Xqr1PSaqxu9uNf3PUAH6D5S303M8BklP4XwWQEOxNxZjrNYyqqjwUYyWvqzLTrldEijnuXbtfHfehIcAVi5IXeWKhSwTgUCMnUkboA7Ey7ahCcynd4u5LZMOnyca0HAD7ubQYCAUmFqItyhlNdaLfE79wzhMZJDvECYRo2xwup4wumCeFma7GoORQVVNjbtzhMLud4VbJ3mi5UYoHO3EVGE8vJ9TZU93WTuTOiWGU",
+    "refresh_token": "8y05Typ3nW0bSpeBr6gx2mreodU8hLBmhncHXL90eINGVa3SFnqxFA0PHnCNyJZxTC0erOYPKdpAevE4WdPX1V4qfuMy4iJ6Ul6sfwYbqABvGPlu52wRBQA8agDkKeqBh5d6rrF7c9zGqvFllC0INn27sDi5JTD15lZCHafmiRhLRbyvuzz0SnqIX0Exos0H7q96DPTCi7VG7GXPMR1A7DV0W9hH865QepTJkUffw6j7jmJ0If4k3bOMT7jAegB0"
 }

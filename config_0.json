@@ -1,0 +1,89 @@
+{
+    "http_server_port": 3003,
+    "allow_zeroconf": false,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3003/",
+    "broker_url": "http://localhost:3002/",
+    "broker_public_key_path": "./keys/public.pem",
+    "oauth2_authorization_server_url": "http://localhost:3001/",
+    "beacon_scan": true,
+    "beacon_scan_realtime_updates": false,
+    "beacon_advertise": true,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        101
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 1500,
+    "beacons_inactivity_timer": 5000,
+    "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
+    "device_capabilities": {
+        "type": "laptop",
+        "display": [
+            {
+                "type": "internal",
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "bitDepth": 24,
+                "size": [
+                    345.5,
+                    196.5
+                ],
+                "refreshRate": 60
+            },
+            {
+                "type": "external",
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "bitDepth": 24,
+                "size": [
+                    477,
+                    268
+                ],
+                "refreshRate": 60
+            }
+        ],
+        "speakers": {
+            "type": "loudspeaker",
+            "channels": 2,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "camera": {
+            "type": "webcam",
+            "resolution": [
+                1280,
+                720
+            ],
+            "bitDepth": 24,
+            "refreshRate": 60
+        },
+        "microphone": {
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "input": [
+            "keyboard",
+            "mouse"
+        ],
+        "sensors": []
+    },
+    "access_token": "FQFBTOgSDUl0wt9x5MAv2nDDTlS3ofNDzEkx0U76mne3riES7bDj9odXJq3pZ8fmZ6QF1XnNGMGurS9Fsea83i24cGF3yaJ9tdhfIE47lVoAzXSHdtd7pBp1PtKzkPQrzR0C3H7TQuzEA67E1vpqfwnsUaqJPRLRwAVoP6Z7RyGdgb5f8yHMX1T6cbXQTFLi5LRekKVfRFSS5OSorYeAYFb9QOLHMxtjXfORS0Lx6AIh2d0TsoSQ6M0wfdZ9EN6v",
+    "refresh_token": "9wKafud5AanTMAsE0WT2RnHenCZR09rzrgt3KvKZXLE79FlOBsmcbeT3Z40iikk6MVexu2Nj3FWxgZSxgg2VOZAbrIyjKcLqsOsMVXnBgzM88ycA0Yd0esM7dRoq99LWY2R0glYCBd7UKKqeWi57HXYP6fUjyEQVKfnXGpJXovJm4L94EzlD2tuBt302YdQ275dNYDBje65iNAXHOCV5NZBP6HcduVFOICxEfQWhpzpk2K1822s60pONPUBbVrmC"
+}
