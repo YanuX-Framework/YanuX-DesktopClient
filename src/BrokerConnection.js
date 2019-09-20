@@ -40,24 +40,28 @@ module.exports = class BrokerConnection {
         this.client = feathers();
         this.client.configure(socketio(this.socket));
         this.client.configure(auth());
-        /** TODO: Port the re-authentication logic to YanuX Coordinator and Scavenger!
-         *  In fact, I should finish implementing it here because I noted that if the connections is kept open beyond the JWT expiration time a NotAuthenticated error arises. */
-        this.authenticate();
+
         this.usersService = this.client.service('users')
         this.devicesService = this.client.service('devices');
         this.beaconsService = this.client.service('beacons');
 
-        this.beaconsService.on('created', beacon => console.log('Received Beacon Created Event'));
-        this.beaconsService.on('updated', beacon => console.log('Received Beacon Updated Event'));
-        this.beaconsService.on('patched', beacon => console.log('Received Beacon Patched Event'));
-        this.beaconsService.on('removed', beacon => console.log('Received Beacon Removed Event'));
+        this.client.io.on('connect', () => {
+            this.beaconsBLE.beaconScanner.startScanning();
+            this.authenticate();
+        });
 
         this.client.io.on('reconnect', attempt => {
             console.log(`Reconnected after ${attempt} attempts`);
+            this.beaconsBLE.beaconScanner.startScanning();
             this.authenticate();
-        })
+        });
+
+        this.client.io.on('disconnect', reason => {
+            this.beaconsBLE.beaconScanner.stopScanning();
+        });
+
         this.client.on('reauthentication-error', err => {
-            console.error(err);
+            console.error('Reauthentication error:', err);
             this.jwtAccessToken = null;
             this.authenticate();
         });
@@ -149,7 +153,8 @@ module.exports = class BrokerConnection {
     tidyUpBeacons() {
         return this.beaconsService
             .remove(null, { query: { user: this.client.get('user'), deviceUuid: this.config.device_uuid } })
-            .then(beacons => console.log('Removed any outstanding beacons:', beacons));
+            .then(beacons => console.log('Removed any outstanding beacons:', beacons))
+            .catch(e => this.handleError(e));
     }
     handleError(e) {
         if (e.name === 'NotAuthenticated') {

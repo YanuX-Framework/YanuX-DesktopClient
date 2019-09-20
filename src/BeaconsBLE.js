@@ -42,18 +42,31 @@ module.exports = class BeaconsBLE {
         this._config = config;
     }
     start() {
+        this.startAdvertising();
+        this.startScanning();
+    }
+    stop() {
+        this.stopAdvertising();
+        this.stopScanning()
+    }
+    startAdvertising() {
         if (this.iBeaconAdvertiser) {
             this.iBeaconAdvertiser.startAdvertising(this.errorCallback);
         }
+    }
+    startScanning() {
         if (this.beaconScanner) {
             this.beaconScanner.startScanning(this.errorCallback);
         }
     }
-    stop() {
+    stopAdvertising() {
         if (this.iBeaconAdvertiser) {
             this.iBeaconAdvertiser.stopAdvertising(this.errorCallback);
         }
+    }
+    stopScanning() {
         if (this.beaconScanner) {
+            this.beaconScanner.removeAllListeners();
             this.beaconScanner.stopScanning(this.errorCallback);
         }
     }

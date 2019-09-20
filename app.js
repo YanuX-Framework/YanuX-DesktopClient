@@ -12,7 +12,7 @@ const HTTPServer = require('./src/HTTPServer');
 
 function start(config) {
     const beaconsBLE = new BeaconsBLE(config);
-    beaconsBLE.start();
+    beaconsBLE.startAdvertising();
     const brokerConnection = new BrokerConnection(config, beaconsBLE)
     if (_.isString(config.access_token)) {
         brokerConnection.connect();
