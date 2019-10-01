@@ -86,6 +86,7 @@ module.exports = class BeaconLogger {
                         this.jsonStream.end();
                         this.writeStream.end();
                         console.log('Saved the log to disk.');
+                        process.exit();
                     }
                 });
             }
