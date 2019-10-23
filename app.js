@@ -33,8 +33,7 @@ function main() {
             default: Config.DEFAULT_CONFIG_PATH,
             describe: 'Configuration file path',
             type: 'string'
-        })
-        .command({
+        }).command({
             command: 'run',
             aliases: ['$0', 'r'],
             handler: (argv) => {
@@ -49,8 +48,7 @@ function main() {
                         });
                     }).catch(e => console.error('Could not collect the device\'s capabilities', e));
             }
-        })
-        .command({
+        }).command({
             command: 'log [logFile] [loggingDuration]',
             aliases: ['l'],
             desc: 'Log surrounding BLE beacons',
@@ -63,12 +61,34 @@ function main() {
                 new Config(configPath, (err, config) => {
                     if (err) { throw err; }
                     const BeaconLogger = require('./src/BeaconLogger');
+                    config.beacon_scan_realtime_updates = true;
+                    config.beacons_print_updated = true;
                     const beaconLogger = new BeaconLogger(config);
                     beaconLogger.start(argv.logFile, argv.loggingDuration);
                 });
             }
         })
-        .demandCommand(1, 'You need to choose at least one command before moving on')
-        .help().argv;
+        .command({
+            command: 'advertise',
+            aliases: ['a'],
+            desc: 'Advertise iBeacon',
+            handler: (argv) => {
+                const configPath = argv.config;
+                new Config(configPath, (err, config) => {
+                    if (err) { throw err; }
+                    const IBeaconAdvertiser = require('./src/Advertiser/IBeaconAdvertiser');
+                    const iBeaconAdvertiser = new IBeaconAdvertiser(
+                        config.beacon_advertiser_parameters[0],
+                        config.beacon_advertiser_parameters[1],
+                        config.beacon_advertiser_parameters[2]
+                    )
+                    iBeaconAdvertiser.startAdvertising(e => {
+                        if (e) { console.error('Error:', e); }
+                        else { console.log('Advertising iBeacon. Ctrl+C to exit.'); }
+                    })
+                });
+            }
+        })
+        .demandCommand(1, 'You need to choose at least one command before moving on').help().argv;
 }
 main();

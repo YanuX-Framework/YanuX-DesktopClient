@@ -46,6 +46,9 @@ module.exports = class BeaconLogger {
                 if (this.beaconsPrintCleared) {
                     this.printBeacons('beaconsCleared', this.beaconsClearConsole)(beacons)
                 }
+                if (new Date().getTime() > this.loggingStartTime + this.loggingDuration) {
+                    this.stop();
+                }
             });
         }
     }
@@ -62,7 +65,7 @@ module.exports = class BeaconLogger {
             this.entryCounter = 0;
             this.writeStream = fs.createWriteStream(this.logFile);
             this.jsonStream = JSONStream
-                .stringify(`{"creationTimestamp":${new Date().getTime()},"name":"${this.logFile}","sessions":{"entries":[`, ',', `]}}`)
+                .stringify(`{"timestamp":${new Date().getTime()},"name":"${this.logFile}","sessions":{"entries":[`, ',', `]}}`)
             this.jsonStream.pipe(this.writeStream);
             this.beaconScanner.startScanning(e => {
                 if (e) { errorCallback(e); }
@@ -98,7 +101,7 @@ module.exports = class BeaconLogger {
             if (title) {
                 console.log('------------ ' + title + ' ------------');
             }
-            for (key in beacons) {
+            for (const key in beacons) {
                 console.log(beacons[key]);
             }
         }

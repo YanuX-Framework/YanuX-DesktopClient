@@ -29,8 +29,78 @@
     "beacons_inactivity_timer": 5000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
+        "camera": [
+            {
+                "refreshRate": 30,
+                "resolution": [
+                    1280,
+                    720
+                ],
+                "type": "webcam"
+            }
+        ],
+        "display": [
+            {
+                "bitDepth": 24,
+                "orientation": "landscape",
+                "pixelDensity": 96,
+                "pixelRatio": 1,
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "size": [
+                    508,
+                    285.75
+                ],
+                "type": "external",
+                "virtualResolution": [
+                    1920,
+                    1080
+                ]
+            },
+            {
+                "bitDepth": 24,
+                "orientation": "landscape",
+                "pixelDensity": 96,
+                "pixelRatio": 1,
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "size": [
+                    508,
+                    285.75
+                ],
+                "type": "internal",
+                "virtualResolution": [
+                    1920,
+                    1080
+                ]
+            }
+        ],
+        "input": [
+            "mouse",
+            "keyboard",
+            "speech input"
+        ],
+        "microphone": [
+            {
+                "bitDepth": 16,
+                "channels": 2,
+                "samplingRate": 44100
+            }
+        ],
+        "sensors": [
+            "location"
+        ],
+        "speakers": {
+            "channels": 2,
+            "samplingRate": 44100,
+            "type": "unknown"
+        },
         "type": "laptop"
     },
-    "access_token": "nDxRwekqcb2OPbZVixHGnQ4Xqr1PSaqxu9uNf3PUAH6D5S303M8BklP4XwWQEOxNxZjrNYyqqjwUYyWvqzLTrldEijnuXbtfHfehIcAVi5IXeWKhSwTgUCMnUkboA7Ey7ahCcynd4u5LZMOnyca0HAD7ubQYCAUmFqItyhlNdaLfE79wzhMZJDvECYRo2xwup4wumCeFma7GoORQVVNjbtzhMLud4VbJ3mi5UYoHO3EVGE8vJ9TZU93WTuTOiWGU",
-    "refresh_token": "8y05Typ3nW0bSpeBr6gx2mreodU8hLBmhncHXL90eINGVa3SFnqxFA0PHnCNyJZxTC0erOYPKdpAevE4WdPX1V4qfuMy4iJ6Ul6sfwYbqABvGPlu52wRBQA8agDkKeqBh5d6rrF7c9zGqvFllC0INn27sDi5JTD15lZCHafmiRhLRbyvuzz0SnqIX0Exos0H7q96DPTCi7VG7GXPMR1A7DV0W9hH865QepTJkUffw6j7jmJ0If4k3bOMT7jAegB0"
+    "access_token": "gMADGzYB9WLHUSWuiCaETW3dHJJ93oOqgvt8qE1P35bO8FzgdDQMHhx3B8X92YaQcEKhN5CwY7ECsoOGnkppdA34kkzsEJFkerzSrJPob6i7pXxJJI8k9Vzg9yVlOxambZADNYaLVmQ9GCnOKCGwoni8viQOtJ1LkukA8o7VXCx6aS5jztN6cEtLWmEUduOjAvFBHD1eVzUjfv6VrRzcIICY0vDxuXD2IoMozNDNRm5oioDJUgt64zGbZ7kZA01g",
+    "refresh_token": "nCENU8mikULvJD3XmogjJQEgEAWGUh75H3JEOiay0lOIxIrdigADQLuIb2dJ2WaY8dh9CoW5Whp3DOnd8cSPfT4totfVHyWRzEflanlfWVBMJPuxsgSRyYE8ukIBQWp4milI9Z5U89gcpTfERHFu4WROeHzB3um7jpkeD0LLkZ8VbhabaOAM6Lq3rBVRgejbwwN69yh7aDQCUPdNqLp5lrUqMDLatIZu3nH3do0A81KhDgnLrkjVNcGOuWICGPtk"
 }

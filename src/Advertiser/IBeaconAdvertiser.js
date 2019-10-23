@@ -15,7 +15,9 @@ module.exports = class IBeaconAdvertiser {
             bleno.startAdvertisingIBeacon(this.uuid, this.major, this.minor, this.measuredPower, callback);
         } else {
             bleno.once('stateChange', state => {
-                self.startAdvertising(callback);
+                if (state === 'poweredOn') {
+                    self.startAdvertising(callback);
+                }
             });
         }
     }
