@@ -1,0 +1,36 @@
+{
+    "http_server_port": 3003,
+    "allow_zeroconf": false,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3003/",
+    "broker_url": "http://localhost:3002/",
+    "broker_public_key_path": "./keys/public.pem",
+    "oauth2_authorization_server_url": "http://localhost:3001/",
+    "beacon_scan": true,
+    "beacon_scan_realtime_updates": false,
+    "beacon_advertise": false,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        101
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 1500,
+    "beacons_inactivity_timer": 5000,
+    "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
+    "device_capabilities": {
+        "type": "laptop"
+    },
+    "access_token": "8RMh1N3jQk16JXgDCuqPzACBdqxwXcnwhoD2FddLQu2GPdc6n2FaQ8DbjWbsvLNs3SF6Th9WP2MTWZWcHWtWcPyog3U5quJv9Qf4zYbDfIwMjNjLhef1pBIRdRPBeA7GsPtCBdAXmUNXd4SBttcNgWilSRWzKOIl7QF2Yc0qZ0oCN1ZsaRSpXr5RkH1zCHgyAAkdV0nYfSxghgTVV3uEuDc3Uw83CDdINgC124XwPkbil0CGbzRC1hvFPvwgkZEV",
+    "refresh_token": "rT82STBythf8P2KlD5BFvSnMfdWkrEw13O4i45YpSFZWge3qFIO3Dp5ilAQlea5k6otSCUDEk966paDJnERejwaLuw7BP8APKboqWZSe13iAwwdC8kP8uHyodWIg5aKXGID4goZzRTb3oRhvTmjD3ImTe0xxnYXW2P5LqFvxMknuKt0QC9cLGhGgeQGB4B9PDOryA6czikkvcFq8q9Z1oyeuLZ21NX0Xe5mu8v2YSDCKOXzuI6hgu6jqurcR0p9X"
+}

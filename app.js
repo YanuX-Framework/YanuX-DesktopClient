@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * NOTES:
  * Some of my code for Beacon Scanning was inspired by: https://github.com/futomi/node-beacon-scanner
@@ -26,27 +28,40 @@ function start(config) {
 }
 
 function main() {
-    const argv = require('yargs')
+    require('yargs')
         .option('config', {
             alias: 'c',
             demandOption: true,
             default: Config.DEFAULT_CONFIG_PATH,
             describe: 'Configuration file path',
             type: 'string'
+        }).option('extractcapabiltities', {
+            alias: 'ec',
+            type: 'boolean',
+            default: true,
+            description: 'Enables the automatic extraction of capabilities'
         }).command({
             command: 'run',
             aliases: ['$0', 'r'],
             handler: (argv) => {
-                new Capabilities().collect()
-                    .then(capabilities => {
-                        const configPath = argv.config;
-                        new Config(configPath, (err, config) => {
-                            if (err) { throw err; }
-                            config.device_capabilities = _.merge({}, capabilities, config.device_capabilities);
+                const prepareConfigAndStart = capabilities => {
+                    const configPath = argv.config;
+                    new Config(configPath, (err, config) => {
+                        if (err) { console.error('Could not load the configuration file:', err) }
+                        else {
+                            if (capabilities) {
+                                config.device_capabilities = _.merge({}, capabilities, config.device_capabilities);
+                            }
                             config.validate();
                             start(config);
-                        });
-                    }).catch(e => console.error('Could not collect the device\'s capabilities', e));
+                        }
+                    });
+                }
+                if (argv.extractcapabiltities) {
+                    new Capabilities().collect()
+                        .then(capabilities => prepareConfigAndStart(capabilities))
+                        .catch(e => console.error('Could not collect the device\'s capabilities', e));
+                } else { prepareConfigAndStart() }
             }
         }).command({
             command: 'log [logFile] [loggingDuration]',
@@ -59,36 +74,38 @@ function main() {
             handler: (argv) => {
                 const configPath = argv.config;
                 new Config(configPath, (err, config) => {
-                    if (err) { throw err; }
-                    const BeaconLogger = require('./src/BeaconLogger');
-                    config.beacon_scan_realtime_updates = true;
-                    config.beacons_print_updated = true;
-                    const beaconLogger = new BeaconLogger(config);
-                    beaconLogger.start(argv.logFile, argv.loggingDuration);
+                    if (err) { console.error('Could not load the configuration file:', err) }
+                    else {
+                        const BeaconLogger = require('./src/BeaconLogger');
+                        config.beacon_scan_realtime_updates = true;
+                        config.beacons_print_updated = true;
+                        const beaconLogger = new BeaconLogger(config);
+                        beaconLogger.start(argv.logFile, argv.loggingDuration);
+                    }
                 });
             }
-        })
-        .command({
+        }).command({
             command: 'advertise',
             aliases: ['a'],
             desc: 'Advertise iBeacon',
             handler: (argv) => {
                 const configPath = argv.config;
                 new Config(configPath, (err, config) => {
-                    if (err) { throw err; }
-                    const IBeaconAdvertiser = require('./src/Advertiser/IBeaconAdvertiser');
-                    const iBeaconAdvertiser = new IBeaconAdvertiser(
-                        config.beacon_advertiser_parameters[0],
-                        config.beacon_advertiser_parameters[1],
-                        config.beacon_advertiser_parameters[2]
-                    )
-                    iBeaconAdvertiser.startAdvertising(e => {
-                        if (e) { console.error('Error:', e); }
-                        else { console.log('Advertising iBeacon. Ctrl+C to exit.'); }
-                    })
+                    if (err) { console.error('Could not load the configuration file:', err) }
+                    else {
+                        const IBeaconAdvertiser = require('./src/Advertiser/IBeaconAdvertiser');
+                        const iBeaconAdvertiser = new IBeaconAdvertiser(
+                            config.beacon_advertiser_parameters[0],
+                            config.beacon_advertiser_parameters[1],
+                            config.beacon_advertiser_parameters[2]
+                        )
+                        iBeaconAdvertiser.startAdvertising(e => {
+                            if (e) { console.error('Error:', e); }
+                            else { console.log('Advertising iBeacon. Ctrl+C to exit.'); }
+                        })
+                    }
                 });
             }
-        })
-        .demandCommand(1, 'You need to choose at least one command before moving on').help().argv;
+        }).demandCommand(1, 'You need to choose at least one command before moving on').help().argv;
 }
 main();
