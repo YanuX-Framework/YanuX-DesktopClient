@@ -35,7 +35,7 @@ function main() {
             default: Config.DEFAULT_CONFIG_PATH,
             describe: 'Configuration file path',
             type: 'string'
-        }).option('extractcapabiltities', {
+        }).option('extract-capabiltities', {
             alias: 'ec',
             type: 'boolean',
             default: true,
@@ -57,7 +57,7 @@ function main() {
                         }
                     });
                 }
-                if (argv.extractcapabiltities) {
+                if (argv.extractCapabiltities) {
                     new Capabilities().collect()
                         .then(capabilities => prepareConfigAndStart(capabilities))
                         .catch(e => console.error('Could not collect the device\'s capabilities', e));
