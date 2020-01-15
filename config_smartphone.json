@@ -10,8 +10,18 @@
     "beacon_scan": true,
     "beacon_scan_realtime_updates": false,
     "beacon_advertise": false,
-    "beacon_matcher_parameters": [null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]],
-    "beacon_advertiser_parameters": ["113069EC-6E64-4BD3-6810-DE01B36E8A3E", 1, 102],
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        102
+    ],
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
@@ -20,15 +30,74 @@
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf09",
     "device_capabilities": {
         "type": "smartphone",
-        "display": {"resolution": [1080, 2248], "orientation": "portrait", "pixelDensity": 402, "bitDepth": 24, "size": [69.5, 142.5], "refreshRate": 60},
-        "speakers": {"type": "loudspeaker", "channels": 1, "bitDepth": 16, "samplingRate": 44100},
-        "camera": [{"type": "main", "resolution": [4032, 3024], "bitDepth": 24, "refreshRate": 60},
-                   {"type": "telephoto", "resolution": [4032, 3024], "bitDepth": 24, "refreshRate": 60},
-                   {"type": "selfie", "resolution": [5184, 3880], "bitDepth": 24, "refreshRate": 60}],
-        "microphone": {"channels": 1, "bitDepth": 16, "samplingRate": 44100},
-        "input": ["touchscreen", "speech recognition"],
-        "sensors": ["gps", "accelerometer", "gyroscope", "compass", "barometer", "light", "proximity"]
+        "display": {
+            "resolution": [
+                1080,
+                2248
+            ],
+            "orientation": "portrait",
+            "pixelDensity": 402,
+            "bitDepth": 24,
+            "size": [
+                69.5,
+                142.5
+            ],
+            "refreshRate": 60
+        },
+        "speakers": {
+            "type": "loudspeaker",
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "camera": [
+            {
+                "type": "main",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "telephoto",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "selfie",
+                "resolution": [
+                    5184,
+                    3880
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            }
+        ],
+        "microphone": {
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "input": [
+            "touchscreen",
+            "speech recognition"
+        ],
+        "sensors": [
+            "gps",
+            "accelerometer",
+            "gyroscope",
+            "compass",
+            "barometer",
+            "light",
+            "proximity"
+        ]
     },
-    "access_token": "c0RRy2zpNODR8hxA91PzS8r93IcHH361p7AyCL08DyZ2D5iRp9rn9CUS4rvpNLGPswKVcR6GjFFUJkkefNkPSbSG0YBwOBkz7voTMCjasdM29QL3eBxRplUQMf2bBl3r2nb4c1poW9rAVLeG3783OmSMZqpuV4FaHEPqC1C7sODmYTSsrlGaIufE63jxF3pEMjEd0jCmoiOsZRQNrEVLtDKQEkAdeHv7YcEJiozLTZBRVWBKe9n8jHY5EFpqWc70",
-    "refresh_token": "SmC2FvWSTeUGFLyC2QxDaX75tvWSRuh41XA5oGxmDA407Ny48yknURDMDt5O3g04EATN4zASSauwlpUKv24qbeYa3QcVescyum6D1vmEChtpZYEbxLqd9FQKDaHW6oXVoEbzR1UIOMofmS02DvStdtF1LEOa79e6ENqHF22b86cDc7X929xNtARazMtghrE7OaJIGQda1E4xinO1LSxvH4dr0qgnK3jxjh1Zd3muAIEr8CoGUvQzOSXkgiglA6S4"
+    "access_token": "03SoxpXHSfa8bmFOum2NlBSxbXTgQH2TOgaFFj0FNFChiiRWV1YqSuv9aVbxjR0UgQGiy2I1H8vG0yJqf7cJQnVjijWpaTzIm2XhBzvYoU9E7Xx2a8dmhPLSuTF3Otr1DBwwyW1TLQQ51jLXtTHnlYCHTNkz5zFqPfbhBbyZUFZjrWmHt9p764gwNkubqDYFZk1wAQtXIiaGaATE1pOJxpXAC9fb5sM8MzlqG0aiUtQpzVnCVPKcXV71ld6lTchD",
+    "refresh_token": "Xzfk0jlBTStyl3UvgcrpQXHQgPvDsAk8qbFJi5DP5GlIM5ERvSdUop1vFtHu5r1SZw3GXnxUFGA3gTXGvMNUf6x32EkMd9Lsv76y2LaTQwOnxjrqBcyvmZZYDjYNDXuFFJG6h6pE9NbTttmTOgwK9YkSvSJGVx3D3oDohd5Yp3iZFZHG2FnGIQcOc25kK01cXv3LE1DR778YOz0M1dgWKIvu1sfkDUsBI1Rpi5kZ5E6sdh77cn2eIpFScFJuZi9z"
 }

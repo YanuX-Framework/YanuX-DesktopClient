@@ -16,6 +16,9 @@
     "watch": "npx nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "yanux-desktop-client": "./app.js"
+  },
   "dependencies": {
     "@abandonware/bleno": "^0.5.1-1",
     "@abandonware/noble": "^1.9.2-5",
@@ -35,7 +38,5 @@
     "uuid": "^3.3.2",
     "yargs": "^15.1.0"
   },
-  "bin": {
-    "yanux-desktop-client": "./app.js"
-  }
+  "devDependencies": {}
 }

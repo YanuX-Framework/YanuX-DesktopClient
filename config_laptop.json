@@ -10,15 +10,97 @@
     "beacon_scan": true,
     "beacon_scan_realtime_updates": false,
     "beacon_advertise": false,
-    "beacon_matcher_parameters": [null, "iBeacon", ["113069EC-6E64-4BD3-6810-DE01B36E8A3E"]],
-    "beacon_advertiser_parameters": ["113069EC-6E64-4BD3-6810-DE01B36E8A3E", 1, 101],
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        101
+    ],
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
     "beacons_refresh_interval": 1500,
     "beacons_inactivity_timer": 5000,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
-    "device_capabilities": {"type": "laptop"},
-    "access_token": "c0RRy2zpNODR8hxA91PzS8r93IcHH361p7AyCL08DyZ2D5iRp9rn9CUS4rvpNLGPswKVcR6GjFFUJkkefNkPSbSG0YBwOBkz7voTMCjasdM29QL3eBxRplUQMf2bBl3r2nb4c1poW9rAVLeG3783OmSMZqpuV4FaHEPqC1C7sODmYTSsrlGaIufE63jxF3pEMjEd0jCmoiOsZRQNrEVLtDKQEkAdeHv7YcEJiozLTZBRVWBKe9n8jHY5EFpqWc70",
-    "refresh_token": "SmC2FvWSTeUGFLyC2QxDaX75tvWSRuh41XA5oGxmDA407Ny48yknURDMDt5O3g04EATN4zASSauwlpUKv24qbeYa3QcVescyum6D1vmEChtpZYEbxLqd9FQKDaHW6oXVoEbzR1UIOMofmS02DvStdtF1LEOa79e6ENqHF22b86cDc7X929xNtARazMtghrE7OaJIGQda1E4xinO1LSxvH4dr0qgnK3jxjh1Zd3muAIEr8CoGUvQzOSXkgiglA6S4"
+    "device_capabilities": {
+        "camera": [
+            {
+                "refreshRate": 30,
+                "resolution": [
+                    1280,
+                    720
+                ],
+                "type": "webcam"
+            }
+        ],
+        "display": [
+            {
+                "bitDepth": 24,
+                "orientation": "landscape",
+                "pixelDensity": 96,
+                "pixelRatio": 1,
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "size": [
+                    508,
+                    285.75
+                ],
+                "type": "external",
+                "virtualResolution": [
+                    1920,
+                    1080
+                ]
+            },
+            {
+                "bitDepth": 24,
+                "orientation": "landscape",
+                "pixelDensity": 96,
+                "pixelRatio": 1,
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "size": [
+                    508,
+                    285.75
+                ],
+                "type": "internal",
+                "virtualResolution": [
+                    1920,
+                    1080
+                ]
+            }
+        ],
+        "input": [
+            "mouse",
+            "keyboard",
+            "speech input"
+        ],
+        "microphone": [
+            {
+                "bitDepth": 16,
+                "channels": 2,
+                "samplingRate": 44100
+            }
+        ],
+        "sensors": [
+            "location"
+        ],
+        "speakers": {
+            "channels": 2,
+            "samplingRate": 44100,
+            "type": "unknown"
+        },
+        "type": "laptop"
+    },
+    "access_token": "03SoxpXHSfa8bmFOum2NlBSxbXTgQH2TOgaFFj0FNFChiiRWV1YqSuv9aVbxjR0UgQGiy2I1H8vG0yJqf7cJQnVjijWpaTzIm2XhBzvYoU9E7Xx2a8dmhPLSuTF3Otr1DBwwyW1TLQQ51jLXtTHnlYCHTNkz5zFqPfbhBbyZUFZjrWmHt9p764gwNkubqDYFZk1wAQtXIiaGaATE1pOJxpXAC9fb5sM8MzlqG0aiUtQpzVnCVPKcXV71ld6lTchD",
+    "refresh_token": "Xzfk0jlBTStyl3UvgcrpQXHQgPvDsAk8qbFJi5DP5GlIM5ERvSdUop1vFtHu5r1SZw3GXnxUFGA3gTXGvMNUf6x32EkMd9Lsv76y2LaTQwOnxjrqBcyvmZZYDjYNDXuFFJG6h6pE9NbTttmTOgwK9YkSvSJGVx3D3oDohd5Yp3iZFZHG2FnGIQcOc25kK01cXv3LE1DR778YOz0M1dgWKIvu1sfkDUsBI1Rpi5kZ5E6sdh77cn2eIpFScFJuZi9z"
 }
