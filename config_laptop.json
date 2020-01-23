@@ -1,4 +1,5 @@
 {
+    "device_name": "Laptop",
     "http_server_port": 3003,
     "allow_zeroconf": false,
     "client_id": "yanux-desktop-client",
@@ -101,6 +102,6 @@
         },
         "type": "laptop"
     },
-    "access_token": "03SoxpXHSfa8bmFOum2NlBSxbXTgQH2TOgaFFj0FNFChiiRWV1YqSuv9aVbxjR0UgQGiy2I1H8vG0yJqf7cJQnVjijWpaTzIm2XhBzvYoU9E7Xx2a8dmhPLSuTF3Otr1DBwwyW1TLQQ51jLXtTHnlYCHTNkz5zFqPfbhBbyZUFZjrWmHt9p764gwNkubqDYFZk1wAQtXIiaGaATE1pOJxpXAC9fb5sM8MzlqG0aiUtQpzVnCVPKcXV71ld6lTchD",
-    "refresh_token": "Xzfk0jlBTStyl3UvgcrpQXHQgPvDsAk8qbFJi5DP5GlIM5ERvSdUop1vFtHu5r1SZw3GXnxUFGA3gTXGvMNUf6x32EkMd9Lsv76y2LaTQwOnxjrqBcyvmZZYDjYNDXuFFJG6h6pE9NbTttmTOgwK9YkSvSJGVx3D3oDohd5Yp3iZFZHG2FnGIQcOc25kK01cXv3LE1DR778YOz0M1dgWKIvu1sfkDUsBI1Rpi5kZ5E6sdh77cn2eIpFScFJuZi9z"
+    "access_token": "MCkfO19tOyZ4ysW4pPpjMwonplLVnWz7zRUOEEydjS5nAh58sBhVOSBKvrFqH1aTdzApn2U5l8v3MnGu5DfOuKDGCGEZgxbBJVbBIxgASeeMF8cC5wU2NFUrEqs0ZWJchYZGQEGEPyntgPEHGIzClF3Y34NAnI1IywMAnqGo8DJSwvtB67Svc1PhCPGkFncZcuQBbnnc10C1vCtrK7hrxbPZ4muF8rgocgsIHsq0P2JJC25mtzRaeTiqzQgqEKM7",
+    "refresh_token": "M2S1kXyZzjbsMEG8jvLOCoXO4egaA5XRFH3kIJqleh10B7xvoECx9Eb4UAVYjrI1xei1XRBMLE2Rg8hRRmItqvvJmRmJuIYgVW2BTkSr0MOTVCqy9XldEzGeu1Dtuku6I87IynXMe99neX1svvWSAJFRCs70EcaPXNg9Ds0zJ9KRYjpnKt5o2AHQ0ZcEcFr6M455E2f1rY3o0AL13L0fGRMyTLLySq2ZoVjLxAnd227TLuQAQL5ez3OpC1H6NrR8"
 }

@@ -1,4 +1,5 @@
 {
+    "device_name": "Smartphone",
     "http_server_port": 3013,
     "allow_zeroconf": false,
     "client_id": "yanux-desktop-client",

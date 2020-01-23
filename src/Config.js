@@ -4,7 +4,6 @@ const uuidv1 = require('uuid/v1');
 
 module.exports = class Config {
     constructor(path, callback) {
-        const self = this;
         Object.defineProperty(this, 'path', {
             configurable: false,
             enumerable: false,
@@ -41,11 +40,14 @@ module.exports = class Config {
         fs.writeFile(this.path, JSON.stringify(this, null, Config.DEFAULT_STRINGIFY_SPACES), writeCallback);
     }
     validate() {
-        if (!_.isBoolean(this.allow_zeroconf)) {
-            throw new Error('"allow_zeroconf" value is either missing or invalid');
+        if (!_.isString(this.device_name)) {
+            throw new Error('"device_name" value is either missing or invalid');
         }
         if (!_.isFinite(this.http_server_port)) {
             throw new Error('"http_server_port" value is either missing or invalid');
+        }
+        if (!_.isBoolean(this.allow_zeroconf)) {
+            throw new Error('"allow_zeroconf" value is either missing or invalid');
         }
         if (!_.isString(this.client_id)) {
             throw new Error('"client_id" value is either missing or invalid');

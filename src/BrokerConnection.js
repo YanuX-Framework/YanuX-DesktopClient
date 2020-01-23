@@ -141,6 +141,7 @@ module.exports = class BrokerConnection {
                         }
                         return this.devicesService.patch(null, {
                             deviceUuid: this.config.device_uuid,
+                            name: this.config.device_name,
                             beaconValues: this.config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
                             capabilities: this.config.device_capabilities
                         }, { query: { deviceUuid: this.config.device_uuid } });
