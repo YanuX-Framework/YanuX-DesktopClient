@@ -37,5 +37,6 @@ function createWindow () {
   });
 }
 
+app.allowRendererProcessReuse = true;
 //Execute the createWindow function once the application is launched and ready.
 app.on('ready', createWindow);

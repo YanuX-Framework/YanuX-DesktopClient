@@ -1,7 +1,5 @@
 //Import spawn from the child_process module.
 const { spawn } = require('child_process');
-//Import the util module.
-const util = require('util');
 
 module.exports = class Capabilities {
     constructor() {}
