@@ -3,14 +3,16 @@ const { remote, ipcRenderer } = require('electron')
 
 //Async function to build the "capabilities" object
 async function getCapabilities() {
-    //*** CAPABILITIES ***
+    //*** CAPABILITIES *********************************************************
     //Initialize the "capabilties" object and start to fill it before returning at the end.
     const capabilities = {};
 
-    //** DISPLAY **
+    //** DISPLAY ***************************************************************
     //Get the information about all the displays from the Electron's Main Process.
     //NOTE: We could probably do something similar using the "screen" object (e.g., "screen.width" and "screen.height"), "devicePixelRatio", etc.
-    const displays = remote.screen.getAllDisplays()
+    const displays = remote.screen.getAllDisplays();
+    //TODO: Listen to events and update the capabilities accordingly: 
+    //https://www.electronjs.org/docs/api/screen#events
 
     //A variable that stores the current device's type.
     let deviceType = 'unknown';
@@ -67,7 +69,13 @@ async function getCapabilities() {
     //Store the current device's type in the capabilities object.
     capabilities.type = deviceType;
 
-    //** SPEAKERS **
+    //** SPEAKERS **************************************************************
+    //TODO: Stop using AudioContext and move the speakers detection to a "navigator.mediaDevices.enumerateDevices()"-based approaches.
+    //I can then extract the deviceId of any supported audio output create streams and extract information from their tracks.
+    //Use the following code as a good starting point:
+    //https://github.com/samdutton/simpl/blob/gh-pages/getusermedia/sources/js/main.js
+    //Listen to events and update the capabilities accordingly:
+    //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
     //Create an audio context
     const audioCtx = new AudioContext();
     capabilities.speakers = {
@@ -81,11 +89,13 @@ async function getCapabilities() {
     //Close the Audio Context
     audioCtx.close();
 
-    //** MICROPHONE **
+    //** MICROPHONE ************************************************************
     //Execute the following code and just continue if something bad happens.
     try {
         //Request an audio stream with an absurd number of channels, sample rate, and sample size.
         //We should get a stream that is as close as possible to these requirements.
+        //TODO: Listen to events and update the capabilities accordingly:
+        //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 channelCount: { ideal: 32 },
@@ -114,11 +124,13 @@ async function getCapabilities() {
     //If something bad happens just log the error to the console.
     catch (e) { console.error(e); }
 
-    //** CAMERA **
+    //** CAMERA ****************************************************************
     //Execute the following code and just continue if something bad happens.
     try {
         //Request a video stream with an absurd number of width, height and frame rate.
         //We should get a stream that is as close as possible to these requirements.
+        //TODO: Listen to events and update the capabilities accordingly:
+        //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 width: { ideal: 4096 },
@@ -145,7 +157,9 @@ async function getCapabilities() {
     //If something bad happens just log the error to the console.
     catch (e) { console.error(e); }
 
-    //** INPUT **
+    //** INPUT *****************************************************************
+    //TODO: Listen to input change events and update the capabilities accordingly:
+    //https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList/addListener
     //Prepare an empty array for the supported input types.
     capabilities.input = [];
 
@@ -164,8 +178,10 @@ async function getCapabilities() {
         capabilities.input.push('keyboard');
     }
 
+    //* Speech Recognition *****************************************************
     //Use the standard SpeechRecognition class or the prefixed webkitSpeechRecognition
     //(I think that the standard one is not available on any browser)
+    //TODO: Find a way to listen to speech input change events and update the capabilities accordingly:
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     //If SpeechRecognition API is supported.
     if (SpeechRecognition) {
@@ -198,9 +214,10 @@ async function getCapabilities() {
         catch (e) { console.error(e); }
     }
 
-    //** SENSORS **
+    //** SENSORS ***************************************************************
     //Prepare an empty array for the supported sensor types.
     capabilities.sensors = [];
+    //* Location ***************************************************************
     //Check for Geolocation API support
     if (navigator.geolocation) {
         //Execute the following code and just continue if something bad happens.
@@ -208,6 +225,8 @@ async function getCapabilities() {
             //Wrap a promise around Geolocation's API getCurrentPosition(...)
             const position = await new Promise((resolve, reject) => {
                 //On sucess resolve the promise with the position, on error reject it with the error.
+                //TODO: Maybe listen to change events and update the capabilities accordingly (regarding location accuracy maybe!):
+                //https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition
                 navigator.geolocation.getCurrentPosition(resolve, reject);
             });
             //If the position was resolved, than we have location support. 
@@ -219,6 +238,9 @@ async function getCapabilities() {
     //Log if Geolocation is not supported. 
     else { console.log('Geolocation is not supported.') }
 
+    //* Generic Sensors ********************************************************
+    //TODO: Maybe listen to change events and update the capabilities accordingly (regarding newly supported sensors at runtime?!?):
+    //https://developer.mozilla.org/en-US/docs/Web/API/Sensor/onreading
     //This function receiver a sensor from the Generic Sensor API and checks if it is supported.
     let checkSensorSupport = async (sensor) => new Promise((resolve, reject) => {
         //If the sensor is sucessfully activated...
@@ -319,7 +341,7 @@ async function main() {
     //Log the object for debugging.
     console.log('Capabilities', capabilities);
     //Send the object to Electron's Main Process.
-    ipcRenderer.send('asynchronous-message', capabilities);
+    ipcRenderer.send('extracted-capabilities', capabilities);
 }
 
 //Execute the main function!
