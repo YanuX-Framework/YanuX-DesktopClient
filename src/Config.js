@@ -1,6 +1,6 @@
 const fs = require('fs');
 const _ = require('lodash');
-const uuidv1 = require('uuid/v1');
+const { v1: uuidv1 } = require('uuid');
 
 module.exports = class Config {
     constructor(path, callback) {
