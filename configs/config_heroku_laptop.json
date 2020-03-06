@@ -1,0 +1,37 @@
+{
+    "device_name": "Laptop",
+    "http_server_port": 3003,
+    "allow_zeroconf": false,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3003/",
+    "broker_url": "https://yanux-broker.herokuapp.com/",
+    "broker_public_key_path": "./keys/public.pem",
+    "oauth2_authorization_server_url": "https://yanux-auth.herokuapp.com/",
+    "beacon_scan": true,
+    "beacon_scan_realtime_updates": false,
+    "beacon_advertise": false,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        101
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 1500,
+    "beacons_inactivity_timer": 5000,
+    "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
+    "device_capabilities": {
+        "type": "laptop"
+    },
+    "access_token": "VcZXDHyME550xmfziOl1sWEVBAtvz0Y2X7Vtqsm27jqzZ3m62C71vDURnXweTY5lWR3sFcpk1hCmjdzvgnzjMLyI1zgFE42veItkakTMf9E7tCVfNo0oqEeFecSqrWWa1wAGZOxVmwo9OnWz3GP8pHjDgkDoJaxiTUlyCR26XYLaU4xCA7iap4XInG0Amk7ARVvy2r6vAzVMeemtA9ptfNOEHfDFGuxjfjwrXBF7LPLrbpTqCChpKKyWWemWqz47",
+    "refresh_token": "Qjn6RZ3lXexreEV7gaBxHbCBDYnSZcHS89YdvIAj1yCxMMkQ8ITV2nB8hVWzYyahkDQLTignHlgD94WsLAnSr3VaCpQTM8uFZF73apuKvCQwOkpFNECPe10B9ADPmvfud3xVoO0DLpHvMBlJHb0gB0Z0oOT7gWdwJuaWtQ4gNGbCGp9RzejyVj2JxO2L84ARUl66lZ8eCR6MPsLwcKZzpdinG3ecenBCJVthmDgcMsPNnsYx91ghXGLrQAwIge2F"
+}

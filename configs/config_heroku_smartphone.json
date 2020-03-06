@@ -1,0 +1,104 @@
+{
+    "device_name": "Smartphone",
+    "http_server_port": 3013,
+    "allow_zeroconf": false,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://localhost:3013/",
+    "broker_url": "https://yanux-broker.herokuapp.com/",
+    "broker_public_key_path": "./keys/public.pem",
+    "oauth2_authorization_server_url": "https://yanux-auth.herokuapp.com/",
+    "beacon_scan": true,
+    "beacon_scan_realtime_updates": false,
+    "beacon_advertise": false,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
+        1,
+        102
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 1500,
+    "beacons_inactivity_timer": 5000,
+    "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf09",
+    "device_capabilities": {
+        "type": "smartphone",
+        "display": {
+            "resolution": [
+                1080,
+                2248
+            ],
+            "orientation": "portrait",
+            "pixelDensity": 402,
+            "bitDepth": 24,
+            "size": [
+                69.5,
+                142.5
+            ],
+            "refreshRate": 60
+        },
+        "speakers": {
+            "type": "loudspeaker",
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "camera": [
+            {
+                "type": "main",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "telephoto",
+                "resolution": [
+                    4032,
+                    3024
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            },
+            {
+                "type": "selfie",
+                "resolution": [
+                    5184,
+                    3880
+                ],
+                "bitDepth": 24,
+                "refreshRate": 60
+            }
+        ],
+        "microphone": {
+            "channels": 1,
+            "bitDepth": 16,
+            "samplingRate": 44100
+        },
+        "input": [
+            "touchscreen",
+            "speech recognition"
+        ],
+        "sensors": [
+            "gps",
+            "accelerometer",
+            "gyroscope",
+            "compass",
+            "barometer",
+            "light",
+            "proximity"
+        ]
+    },
+    "access_token": "VcZXDHyME550xmfziOl1sWEVBAtvz0Y2X7Vtqsm27jqzZ3m62C71vDURnXweTY5lWR3sFcpk1hCmjdzvgnzjMLyI1zgFE42veItkakTMf9E7tCVfNo0oqEeFecSqrWWa1wAGZOxVmwo9OnWz3GP8pHjDgkDoJaxiTUlyCR26XYLaU4xCA7iap4XInG0Amk7ARVvy2r6vAzVMeemtA9ptfNOEHfDFGuxjfjwrXBF7LPLrbpTqCChpKKyWWemWqz47",
+    "refresh_token": "Qjn6RZ3lXexreEV7gaBxHbCBDYnSZcHS89YdvIAj1yCxMMkQ8ITV2nB8hVWzYyahkDQLTignHlgD94WsLAnSr3VaCpQTM8uFZF73apuKvCQwOkpFNECPe10B9ADPmvfud3xVoO0DLpHvMBlJHb0gB0Z0oOT7gWdwJuaWtQ4gNGbCGp9RzejyVj2JxO2L84ARUl66lZ8eCR6MPsLwcKZzpdinG3ecenBCJVthmDgcMsPNnsYx91ghXGLrQAwIge2F"
+}
