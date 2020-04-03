@@ -1,10 +1,10 @@
 {
     "device_name": "Laptop",
-    "http_server_port": 3003,
+    "http_server_port": 3023,
     "allow_zeroconf": false,
     "client_id": "yanux-coordinator-test",
     "client_secret": "topsecret_client_secret",
-    "redirect_uri": "http://localhost:3003/",
+    "redirect_uri": "http://localhost:3023/",
     "broker_url": "http://localhost:3002/",
     "broker_public_key_path": "./keys/public.pem",
     "oauth2_authorization_server_url": "http://localhost:3001/",

@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@abandonware/bleno": "^0.5.1-2",
-    "@abandonware/noble": "^1.9.2-7",
+    "@abandonware/noble": "^1.9.2-8",
     "@feathersjs/authentication-client": "^4.5.2",
     "@feathersjs/feathers": "^4.5.2",
     "@feathersjs/socketio-client": "^4.5.2",
