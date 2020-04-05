@@ -10,7 +10,7 @@
             "name": "Debug YanuX Desktop Client",
             "program": "${workspaceFolder}/app.js",
             "outputCapture": "std",
-            "args": ["-c", "config.json"]
+            "args": ["-c", "configs/config_localhost_yanux_coordinator_test_laptop.json"]
         }
     ]
 }

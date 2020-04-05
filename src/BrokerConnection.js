@@ -46,18 +46,18 @@ module.exports = class BrokerConnection {
         this.beaconsService = this.client.service('beacons');
 
         this.client.io.on('connect', () => {
-            this.beaconsBLE.beaconScanner.startScanning();
+            this.beaconsBLE.startScanning();
             this.authenticate();
         });
 
         this.client.io.on('reconnect', attempt => {
             console.log(`Reconnected after ${attempt} attempts`);
-            this.beaconsBLE.beaconScanner.startScanning();
+            this.beaconsBLE.startScanning();
             this.authenticate();
         });
 
         this.client.io.on('disconnect', reason => {
-            this.beaconsBLE.beaconScanner.stopScanning();
+            this.beaconsBLE.stopScanning();
         });
 
         this.client.on('reauthentication-error', err => {

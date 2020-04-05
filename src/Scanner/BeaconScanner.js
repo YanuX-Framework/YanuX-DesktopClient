@@ -63,9 +63,17 @@ module.exports = class BeaconScanner extends EventEmitter {
                 }
             }, this._refreshInterval);
         }
-        if (noble.state === 'poweredOn') {
-            _startScanning();
+
+        try {
+            if (noble.state === 'poweredOn') {
+                _startScanning();
+            }
+        } catch (e) {
+            if (e.message === 'LIBUSB_ERROR_NOT_SUPPORTED') {
+                console.error('WARNING: You device does not support libusb. The program will continue to execute but without performing Beacon Scanning:', e);
+            } else { throw e; }
         }
+
         noble.on('stateChange', state => {
             if (state === 'poweredOn') {
                 _startScanning();
