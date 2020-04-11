@@ -62,6 +62,3 @@ typings/
 
 # Ignore any file called "keys.json". It probably contains information that should not be publicly available.
 keys.json
-
-# Ignore config.json since it's just a symlink to the configuration on the "configs" folder which is deemed to be the default at the moment.
-/config.json
