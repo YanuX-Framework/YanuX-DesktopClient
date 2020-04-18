@@ -7,10 +7,14 @@
 const _ = require('lodash');
 const Config = require('./src/Config');
 const Capabilities = require('./src/Capabilities');
-const Zeroconf = require('./src/Zeroconf');
 const BrokerConnection = require('./src/BrokerConnection');
 const BeaconsBLE = require('./src/BeaconsBLE');
 const HTTPServer = require('./src/HTTPServer');
+
+// --------------------- Disabled modules ---------------------
+// const Zeroconf = require('./src/Zeroconf');
+// ------------------------------------------------------------
+
 
 function start(config) {
     const beaconsBLE = new BeaconsBLE(config);
@@ -21,10 +25,14 @@ function start(config) {
     }
     const httpServer = new HTTPServer(config, brokerConnection);
     httpServer.listen();
-    const zeroconf = new Zeroconf(config, brokerConnection);
-    if (_.isBoolean(config.allow_zeroconf) && config.allow_zeroconf) {
-        zeroconf.startDiscovery();
-    }
+    // -------------------------------------------------------------
+    // Disabled zeroconf (package: dnssd)
+    // -------------------------------------------------------------
+    // const zeroconf = new Zeroconf(config, brokerConnection);
+    // if (_.isBoolean(config.allow_zeroconf) && config.allow_zeroconf) {
+    //     zeroconf.startDiscovery();
+    // }
+    // -------------------------------------------------------------
 }
 
 function main() {
