@@ -1,12 +1,12 @@
 const fs = require('fs');
-const util = require('util');
 const _ = require('lodash');
 const io = require('socket.io-client');
 const feathers = require('@feathersjs/feathers');
 const socketio = require('@feathersjs/socketio-client');
 const auth = require('@feathersjs/authentication-client');
 const request = require('request');
-const jsonwebtoken = require('jsonwebtoken');
+const jose = require('jose');
+const fetch = require('node-fetch');
 
 module.exports = class BrokerConnection {
     constructor(config, beaconsBLE) {
@@ -83,11 +83,23 @@ module.exports = class BrokerConnection {
         if (credentials.accessToken) {
             this.client.authenticate(credentials)
                 .then(response => {
-                    console.log('Logged in successfully with the following JWT:\n' + response.accessToken + '\n');
-                    console.log('Verifying it using this public key:\n' + this.brokerPublicKey);
-                    return util.promisify(jsonwebtoken.verify)(response.accessToken, this.brokerPublicKey);
+                    const accessToken = response.accessToken;
+                    console.log('Logged in successfully with the following JWT:\n' + accessToken + '\n');
+                    const decodedToken = jose.JWT.decode(accessToken, { complete: true });
+                    return new Promise((resolve, reject) => {
+                        if (decodedToken.header && decodedToken.header.jku) {
+                            //TODO: Perhaps I should cache the JKU URL contents and corresponding KeyStore for better performance.
+                            fetch(decodedToken.header.jku).then(response => response.json()).then(json => {
+                                const keys = (json.keys || []).map(k => jose.JWK.asKey(k))
+                                const keyStore = new jose.JWKS.KeyStore(keys);
+                                resolve(jose.JWT.verify(accessToken, keyStore));
+                            }).catch(e => reject(e));
+                        } else { reject(new Error('Could not retrieve a JWK to validate the JWT.')) }
+                    });
+                }).then(payload => {
+                    console.log('Payload:', payload);
+                    return this.usersService.get(payload.user._id);
                 })
-                .then(payload => this.usersService.get(payload.user._id))
                 .then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
@@ -200,8 +212,6 @@ module.exports = class BrokerConnection {
                 this.config.validate();
             }
             this.authenticate();
-        } else {
-            console.error('Unknown Error:', e);
-        }
+        } else { console.error('Unknown Error:', e); }
     }
 }
