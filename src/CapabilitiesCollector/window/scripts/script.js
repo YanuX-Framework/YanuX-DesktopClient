@@ -1,6 +1,17 @@
 //Electron Imports
 const { remote, ipcRenderer } = require('electron')
 
+//Brute force polling update mode (DON'T USE IT OTHER THAN FOR TESTING)
+//setInterval(main, 10000);
+navigator.mediaDevices.ondevicechange = main;
+remote.screen.on('display-added', main);
+remote.screen.on('display-removed', main);
+remote.screen.on('display-metrics-changed', main);
+
+//TODO: 
+//Detect other changes to the capabilities!
+//pehaps I should make the getCapabilities() function more fine-grained and state aware so that I don't have to re-run everything on every change.
+
 //Async function to build the "capabilities" object
 async function getCapabilities() {
     //*** CAPABILITIES *********************************************************
@@ -49,15 +60,15 @@ async function getCapabilities() {
         const size = [width, height];
 
         //Infer the device type from its internal display size
-        if(type === 'internal') {
+        if (type === 'internal') {
             //If it's smaller than 2 inches it's probably a smartwatch.
-            if(diagonalSize < 2.0) {
+            if (diagonalSize < 2.0) {
                 deviceType = 'smartwatch';
-            //If it's smaller than 7 inches it's probably a smartphone.
-            } else if(diagonalSize < 7.0) {
+                //If it's smaller than 7 inches it's probably a smartphone.
+            } else if (diagonalSize < 7.0) {
                 deviceType = 'smartphone';
-            //Otherwise, it's hard to be sure.
-            //I could combine screen size with input types to try to infer a more concrete device type, but I'll leave as other for now!
+                //Otherwise, it's hard to be sure.
+                //I could combine screen size with input types to try to infer a more concrete device type, but I'll leave as other for now!
             } else {
                 deviceType = 'other';
             }
@@ -69,93 +80,140 @@ async function getCapabilities() {
     //Store the current device's type in the capabilities object.
     capabilities.type = deviceType;
 
-    //** SPEAKERS **************************************************************
-    //TODO: Stop using AudioContext and move the speakers detection to a "navigator.mediaDevices.enumerateDevices()"-based approaches.
-    //I can then extract the deviceId of any supported audio output create streams and extract information from their tracks.
-    //Use the following code as a good starting point:
-    //https://github.com/samdutton/simpl/blob/gh-pages/getusermedia/sources/js/main.js
-    //Listen to events and update the capabilities accordingly:
-    //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
-    //Create an audio context
-    const audioCtx = new AudioContext();
-    capabilities.speakers = {
-        //The audio context does not provide enough information to determine the time of speakers. So I'll just set them to unknown.
-        type: 'unknown',
-        //Get the maximum number of channels in the destination of the audio context.
-        channels: audioCtx.destination.maxChannelCount,
-        //Get the audio context sample rate.
-        samplingRate: audioCtx.sampleRate
+    //** SPEAKERS, MICROPHONE & CAMERA *****************************************
+    capabilities.speakers = [];
+    //TODO: I should probably change the following keys to plural but I'll have to change on YanuX Coordinator Components Rule Engine as well.
+    capabilities.microphone = [];
+    capabilities.camera = [];
+    const extractSpeakersMicrophonesCameras = async () => {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            console.log('Devices:', devices);
+            for (d of devices) {
+                const [kind, type, direction] = d.kind.match(/(\w+)(input|output)/i);
+                if (type === 'audio') {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        audio: { deviceId: d.deviceId, channelCount: { ideal: 32 }, sampleRate: { ideal: 192000 }, sampleSize: { ideal: 64 } }
+                    });
+                    const audioCapabilities = stream.getTracks().map(track => {
+                        const trackSettings = track.getSettings();
+                        const caps = {
+                            type: 'unknown',
+                            //If channelCount is unavailable we just consider it to have one channel since a track can't have 0.
+                            channels: trackSettings.channelCount ? trackSettings.channelCount : 1,
+                            //The sampleSize is the bitDepth
+                            bitDepth: trackSettings.sampleSize,
+                            samplingRate: trackSettings.sampleRate
+                        }
+                        track.stop();
+                        return caps;
+                    });
+                    if (direction === 'output') { capabilities.speakers.push(...audioCapabilities); }
+                    else if (direction === 'input') { capabilities.microphone.push(...audioCapabilities); }
+                } else if (type === 'video') {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { deviceId: d.deviceId, width: { ideal: 4096 }, height: { ideal: 4096 }, frameRate: { ideal: 1024 } }
+                    });
+                    const videoCapabilties = stream.getTracks().map(track => {
+                        const trackSettings = track.getSettings();
+                        const video = {
+                            type: 'webcam',
+                            resolution: [trackSettings.width, trackSettings.height],
+                            refreshRate: trackSettings.frameRate
+                        }
+                        track.stop();
+                        return video;
+                    });
+                    if (direction === 'input') { capabilities.camera.push(...videoCapabilties); }
+                }
+            }
+        } catch (e) { console.error(e); }
     }
-    //Close the Audio Context
-    audioCtx.close();
+    await extractSpeakersMicrophonesCameras();
 
-    //** MICROPHONE ************************************************************
-    //Execute the following code and just continue if something bad happens.
-    try {
-        //Request an audio stream with an absurd number of channels, sample rate, and sample size.
-        //We should get a stream that is as close as possible to these requirements.
-        //TODO: Listen to events and update the capabilities accordingly:
-        //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                channelCount: { ideal: 32 },
-                sampleRate: { ideal: 192000 },
-                sampleSize: { ideal: 64 },
-            }
-        });
-        //We then map each of the tracks of the stream (probably just one) to the microphone array on the capabilities object.
-        capabilities.microphone = stream.getTracks().map(track => {
-            //We get the settings of the track so that we can get the information that characterizes the microphone.
-            const trackSettings = track.getSettings();
-            //We prepare an object with the microphone's capabilities.
-            const microphone = {
-                //If channelCount is unavailable we just consider it to have one channel since a track can't have 0.
-                channels: trackSettings.channelCount ? trackSettings.channelCount : 1,
-                //The sampleSize is the bitDepth
-                bitDepth: trackSettings.sampleSize,
-                samplingRate: trackSettings.sampleRate
-            }
-            //We stop the track since we don't need it anymore.
-            track.stop();
-            //Return the information about the microphone.
-            return microphone;
-        });
-    }
-    //If something bad happens just log the error to the console.
-    catch (e) { console.error(e); }
+    //--------------------------------------------------------------------------
+    //TODO: Remove the following commented out implementations once I'm sure the new one above is solid!main
+    // //Create an audio context
+    // const audioCtx = new AudioContext();
+    // capabilities.speakers = {
+    //     //The audio context does not provide enough information to determine the time of speakers. So I'll just set them to unknown.
+    //     type: 'unknown',
+    //     //Get the maximum number of channels in the destination of the audio context.
+    //     channels: audioCtx.destination.maxChannelCount,
+    //     //Get the audio context sample rate.
+    //     samplingRate: audioCtx.sampleRate
+    // }
+    // //Close the Audio Context
+    // audioCtx.close();
 
-    //** CAMERA ****************************************************************
-    //Execute the following code and just continue if something bad happens.
-    try {
-        //Request a video stream with an absurd number of width, height and frame rate.
-        //We should get a stream that is as close as possible to these requirements.
-        //TODO: Listen to events and update the capabilities accordingly:
-        //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 4096 },
-                height: { ideal: 4096 },
-                frameRate: { ideal: 1024 }
-            }
-        });
-        //We then map each of the tracks of the stream (probably just one) to the camera array on the capabilities object.
-        capabilities.camera = stream.getTracks().map(track => {
-            //We get the settings of the track so that we can get the information that characterizes the camera.
-            const trackSettings = track.getSettings();
-            //We prepare an object with the cameras's capabilities.
-            const camera = {
-                type: 'webcam',
-                resolution: [trackSettings.width, trackSettings.height],
-                refreshRate: trackSettings.frameRate
-            }
-            //We stop the track since we don't need it anymore.
-            track.stop();
-            //Return the information about the camera.
-            return camera;
-        });
-    }
-    //If something bad happens just log the error to the console.
-    catch (e) { console.error(e); }
+    // //** MICROPHONE ************************************************************
+    // //Execute the following code and just continue if something bad happens.
+    // try {
+    //     //Request an audio stream with an absurd number of channels, sample rate, and sample size.
+    //     //We should get a stream that is as close as possible to these requirements.
+    //     //TODO: Listen to events and update the capabilities accordingly:
+    //     //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
+    //     const stream = await navigator.mediaDevices.getUserMedia({
+    //         audio: {
+    //             channelCount: { ideal: 32 },
+    //             sampleRate: { ideal: 192000 },
+    //             sampleSize: { ideal: 64 },
+    //         }
+    //     });
+    //     //We then map each of the tracks of the stream (probably just one) to the microphone array on the capabilities object.
+    //     capabilities.microphone = stream.getTracks().map(track => {
+    //         //We get the settings of the track so that we can get the information that characterizes the microphone.
+    //         const trackSettings = track.getSettings();
+    //         //We prepare an object with the microphone's capabilities.
+    //         const microphone = {
+    //             //If channelCount is unavailable we just consider it to have one channel since a track can't have 0.
+    //             channels: trackSettings.channelCount ? trackSettings.channelCount : 1,
+    //             //The sampleSize is the bitDepth
+    //             bitDepth: trackSettings.sampleSize,
+    //             samplingRate: trackSettings.sampleRate
+    //         }
+    //         //We stop the track since we don't need it anymore.
+    //         track.stop();
+    //         //Return the information about the microphone.
+    //         return microphone;
+    //     });
+    // }
+    // //If something bad happens just log the error to the console.
+    // catch (e) { console.error(e); }
+
+    // //** CAMERA ****************************************************************
+    // //Execute the following code and just continue if something bad happens.
+    // try {
+    //     //Request a video stream with an absurd number of width, height and frame rate.
+    //     //We should get a stream that is as close as possible to these requirements.
+    //     //TODO: Listen to events and update the capabilities accordingly:
+    //     //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/devicechange_event
+    //     const stream = await navigator.mediaDevices.getUserMedia({
+    //         video: {
+    //             width: { ideal: 4096 },
+    //             height: { ideal: 4096 },
+    //             frameRate: { ideal: 1024 }
+    //         }
+    //     });
+    //     //We then map each of the tracks of the stream (probably just one) to the camera array on the capabilities object.
+    //     capabilities.camera = stream.getTracks().map(track => {
+    //         //We get the settings of the track so that we can get the information that characterizes the camera.
+    //         const trackSettings = track.getSettings();
+    //         //We prepare an object with the cameras's capabilities.
+    //         const camera = {
+    //             type: 'webcam',
+    //             resolution: [trackSettings.width, trackSettings.height],
+    //             refreshRate: trackSettings.frameRate
+    //         }
+    //         //We stop the track since we don't need it anymore.
+    //         track.stop();
+    //         //Return the information about the camera.
+    //         return camera;
+    //     });
+    // }
+    // //If something bad happens just log the error to the console.
+    // catch (e) { console.error(e); }
+    //--------------------------------------------------------------------------
 
     //** INPUT *****************************************************************
     //TODO: Listen to input change events and update the capabilities accordingly:

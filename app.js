@@ -6,16 +6,16 @@
  */
 const _ = require('lodash');
 const Config = require('./src/Config');
-const Capabilities = require('./src/Capabilities');
+const CapabilitiesCollector = require('./src/CapabilitiesCollector');
 const BrokerConnection = require('./src/BrokerConnection');
 const BeaconsBLE = require('./src/BeaconsBLE');
 const HTTPServer = require('./src/HTTPServer');
 const Zeroconf = require('./src/Zeroconf');
 
-function start(config) {
+function start(config, capabilitiesCollector) {
     const beaconsBLE = new BeaconsBLE(config);
     beaconsBLE.startAdvertising();
-    const brokerConnection = new BrokerConnection(config, beaconsBLE)
+    const brokerConnection = new BrokerConnection(config, beaconsBLE, capabilitiesCollector)
     if (_.isString(config.access_token)) {
         brokerConnection.connect();
     }
@@ -35,7 +35,7 @@ function main() {
             default: Config.DEFAULT_CONFIG_PATH,
             describe: 'Configuration file path',
             type: 'string'
-        }).option('extract-capabiltities', {
+        }).option('extract-capabilities', {
             alias: 'ec',
             type: 'boolean',
             default: true,
@@ -44,22 +44,24 @@ function main() {
             command: 'run',
             aliases: ['$0', 'r'],
             handler: (argv) => {
+                let capabilitiesCollector;
                 const prepareConfigAndStart = capabilities => {
                     const configPath = argv.config;
                     new Config(configPath, (err, config) => {
                         if (err) { console.error('Could not load the configuration file:', err); process.exit(1); }
                         else {
                             if (capabilities) {
+                                config.default_device_capabilities = config.device_capabilities;
                                 config.device_capabilities = _.merge({}, capabilities, config.device_capabilities);
                             }
                             config.validate();
-                            start(config);
+                            start(config, capabilitiesCollector);
                         }
                     });
                 }
-                if (argv.extractCapabiltities) {
-                    new Capabilities().collect()
-                        .then(capabilities => prepareConfigAndStart(capabilities))
+                if (argv.extractCapabilities) {
+                    capabilitiesCollector = new CapabilitiesCollector();
+                    capabilitiesCollector.collect().then(capabilities => prepareConfigAndStart(capabilities))
                         .catch(err => { console.error('Could not collect the device\'s capabilities', err); process.exit(1); });
                 } else { prepareConfigAndStart() }
             }

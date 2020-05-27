@@ -22,7 +22,7 @@ function createWindow () {
     },
     //Hide the window since this is supposed to be used on CLI application.
     //However, I many eventually convert the whole YanuX Desktop Client application to an Electron based desktop application.
-    show: false
+    show: true
   });
   //Load the internal window/index.html page.
   win.loadFile('../window/index.html');
@@ -31,7 +31,7 @@ function createWindow () {
     //The message should contain the capabilities object which can then be sent to the parent process.
     process.send(arg);
     //We no longer need the application. Just quit!
-    app.quit();
+    //app.quit();
   });
 }
 

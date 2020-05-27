@@ -9,9 +9,10 @@ const jose = require('jose');
 const fetch = require('node-fetch');
 
 module.exports = class BrokerConnection {
-    constructor(config, beaconsBLE) {
+    constructor(config, beaconsBLE, capabilitiesCollector) {
         this.config = config;
         this.beaconsBLE = beaconsBLE;
+        this.capabilitiesCollector = capabilitiesCollector;
     }
     get config() {
         return this._config;
@@ -43,6 +44,15 @@ module.exports = class BrokerConnection {
         this.usersService = this.client.service('users')
         this.devicesService = this.client.service('devices');
         this.beaconsService = this.client.service('beacons');
+
+        if (this.capabilitiesCollector) {
+            this.capabilitiesCollector.subcribe(capabilities => {
+                this.devicesService.patch(null,
+                    { capabilities: _.merge({}, capabilities, this.config.default_device_capabilities) },
+                    { query: { deviceUuid: this.config.device_uuid } }
+                ).catch(e => console.error('Could not update device capabilities:', e));
+            })
+        }
 
         this.client.io.on('connect', () => {
             this.beaconsBLE.startScanning();
@@ -150,6 +160,7 @@ module.exports = class BrokerConnection {
                                 }).catch(e => this.handleError(e));
                             });
                         }
+                        console.log('Device Capabilities:', this.config.device_capabilities);
                         return this.devicesService.patch(null, {
                             deviceUuid: this.config.device_uuid,
                             name: this.config.device_name,
