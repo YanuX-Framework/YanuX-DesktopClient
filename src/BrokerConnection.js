@@ -12,7 +12,6 @@ module.exports = class BrokerConnection {
     constructor(config, beaconsBLE) {
         this.config = config;
         this.beaconsBLE = beaconsBLE;
-        this.brokerPublicKey = fs.readFileSync(this.config.broker_public_key_path);
     }
     get config() {
         return this._config;
@@ -87,14 +86,14 @@ module.exports = class BrokerConnection {
                     console.log('Logged in successfully with the following JWT:\n' + accessToken + '\n');
                     const decodedToken = jose.JWT.decode(accessToken, { complete: true });
                     return new Promise((resolve, reject) => {
-                        if (decodedToken.header && decodedToken.header.jku) {
+                        if (decodedToken.header && decodedToken.header.jku && decodedToken.header.jku.startsWith(this.config.broker_url)) {
                             //TODO: Perhaps I should cache the JKU URL contents and corresponding KeyStore for better performance.
                             fetch(decodedToken.header.jku).then(response => response.json()).then(json => {
                                 const keys = (json.keys || []).map(k => jose.JWK.asKey(k))
                                 const keyStore = new jose.JWKS.KeyStore(keys);
                                 resolve(jose.JWT.verify(accessToken, keyStore));
                             }).catch(e => reject(e));
-                        } else { reject(new Error('Could not retrieve a JWK to validate the JWT.')) }
+                        } else { reject(new Error('"jku" is either missing from the token header or points to a an untrusted URL')) }
                     });
                 }).then(payload => {
                     console.log('Payload:', payload);

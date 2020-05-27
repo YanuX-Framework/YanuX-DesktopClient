@@ -6,7 +6,6 @@
     "client_secret": "topsecret_client_secret",
     "redirect_uri": "http://localhost:3003/",
     "broker_url": "http://localhost:3002/",
-    "broker_public_key_path": "./keys/public.pem",
     "oauth2_authorization_server_url": "http://localhost:3001/",
     "beacon_scan": true,
     "beacon_scan_realtime_updates": false,

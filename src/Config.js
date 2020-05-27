@@ -61,9 +61,6 @@ module.exports = class Config {
         if (!_.isString(this.broker_url)) {
             throw new Error('"broker_url" value is either missing or invalid');
         }
-        if (!_.isString(this.broker_public_key_path)) {
-            throw new Error('"broker_public_key_path" value is either missing or invalid');
-        }
         if (!_.isString(this.oauth2_authorization_server_url)) {
             throw new Error('"oauth2_authorization_server_url" value is either missing or invalid');
         }

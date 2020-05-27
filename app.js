@@ -47,7 +47,7 @@ function main() {
                 const prepareConfigAndStart = capabilities => {
                     const configPath = argv.config;
                     new Config(configPath, (err, config) => {
-                        if (err) { console.error('Could not load the configuration file:', err) }
+                        if (err) { console.error('Could not load the configuration file:', err); process.exit(1); }
                         else {
                             if (capabilities) {
                                 config.device_capabilities = _.merge({}, capabilities, config.device_capabilities);
@@ -60,7 +60,7 @@ function main() {
                 if (argv.extractCapabiltities) {
                     new Capabilities().collect()
                         .then(capabilities => prepareConfigAndStart(capabilities))
-                        .catch(e => console.error('Could not collect the device\'s capabilities', e));
+                        .catch(err => { console.error('Could not collect the device\'s capabilities', err); process.exit(1); });
                 } else { prepareConfigAndStart() }
             }
         }).command({
@@ -74,7 +74,7 @@ function main() {
             handler: (argv) => {
                 const configPath = argv.config;
                 new Config(configPath, (err, config) => {
-                    if (err) { console.error('Could not load the configuration file:', err) }
+                    if (err) { console.error('Could not load the configuration file:', err); process.exit(1); }
                     else {
                         const BeaconLogger = require('./src/BeaconLogger');
                         config.beacon_scan_realtime_updates = true;
@@ -91,7 +91,7 @@ function main() {
             handler: (argv) => {
                 const configPath = argv.config;
                 new Config(configPath, (err, config) => {
-                    if (err) { console.error('Could not load the configuration file:', err) }
+                    if (err) { console.error('Could not load the configuration file:', err); process.exit(1); }
                     else {
                         const IBeaconAdvertiser = require('./src/Advertiser/IBeaconAdvertiser');
                         const iBeaconAdvertiser = new IBeaconAdvertiser(
@@ -100,7 +100,7 @@ function main() {
                             config.beacon_advertiser_parameters[2]
                         )
                         iBeaconAdvertiser.startAdvertising(e => {
-                            if (e) { console.error('Error:', e); }
+                            if (err) { console.error('Error:', err); process.exit(1); }
                             else { console.log('Advertising iBeacon. Ctrl+C to exit.'); }
                         })
                     }
