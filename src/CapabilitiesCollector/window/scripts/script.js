@@ -85,54 +85,58 @@ async function getCapabilities() {
     //TODO: I should probably change the following keys to plural but I'll have to change on YanuX Coordinator Components Rule Engine as well.
     capabilities.microphone = [];
     capabilities.camera = [];
-    const extractSpeakersMicrophonesCameras = async () => {
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            console.log('Devices:', devices);
-            for (d of devices) {
-                const [kind, type, direction] = d.kind.match(/(\w+)(input|output)/i);
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        for (const d of devices) {
+            const [kind, type, direction] = d.kind.match(/(\w+)(input|output)/i);
+            let stream = null;
+            let mediaConstraints = null;
+            if (type === 'audio') {
+                mediaConstraints = { audio: { deviceId: { exact: d.deviceId }, channelCount: { ideal: 32 }, sampleRate: { ideal: 192000 }, sampleSize: { ideal: 64 } } };
+            } else if (type === 'video') {
+                mediaConstraints = { video: { deviceId: { exact: d.deviceId }, width: { ideal: 4096 }, height: { ideal: 4096 }, frameRate: { ideal: 1024 } } };
+            } else { continue; }
+            try { stream = await navigator.mediaDevices.getUserMedia(mediaConstraints); } catch (e) { console.log(e); continue; }
+            const trackCapabilities = stream.getTracks().map(track => {
+                const trackSettings = track.getSettings();
+                let extractedTrackCapabilities = null;
+                const device = devices.find(device => device.deviceId === trackSettings.deviceId);
+                const deviceLabel = device ? device.label : null;
+                // console.log(
+                //     'Device Label:', deviceLabel,
+                //     'Track Settings:', track.getSettings(),
+                //     'Capabilities:', track.getCapabilities(),
+                //     'Constraints:', track.getConstraints()
+                // );
                 if (type === 'audio') {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        audio: { deviceId: d.deviceId, channelCount: { ideal: 32 }, sampleRate: { ideal: 192000 }, sampleSize: { ideal: 64 } }
-                    });
-                    const audioCapabilities = stream.getTracks().map(track => {
-                        const trackSettings = track.getSettings();
-                        const caps = {
-                            type: 'unknown',
-                            //If channelCount is unavailable we just consider it to have one channel since a track can't have 0.
-                            channels: trackSettings.channelCount ? trackSettings.channelCount : 1,
-                            //The sampleSize is the bitDepth
-                            bitDepth: trackSettings.sampleSize,
-                            samplingRate: trackSettings.sampleRate
-                        }
-                        track.stop();
-                        return caps;
-                    });
-                    if (direction === 'output') { capabilities.speakers.push(...audioCapabilities); }
-                    else if (direction === 'input') { capabilities.microphone.push(...audioCapabilities); }
+                    extractedTrackCapabilities = {
+                        label: deviceLabel, type: 'unknown',
+                        //If channelCount is unavailable we just consider it to have one channel since a track can't have 0.
+                        channels: trackSettings.channelCount ? trackSettings.channelCount : 1,
+                        //The sampleSize is the bitDepth
+                        bitDepth: trackSettings.sampleSize, samplingRate: trackSettings.sampleRate
+                    }
                 } else if (type === 'video') {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { deviceId: d.deviceId, width: { ideal: 4096 }, height: { ideal: 4096 }, frameRate: { ideal: 1024 } }
-                    });
-                    const videoCapabilties = stream.getTracks().map(track => {
-                        const trackSettings = track.getSettings();
-                        const video = {
-                            type: 'webcam',
-                            resolution: [trackSettings.width, trackSettings.height],
-                            refreshRate: trackSettings.frameRate
-                        }
-                        track.stop();
-                        return video;
-                    });
-                    if (direction === 'input') { capabilities.camera.push(...videoCapabilties); }
+                    extractedTrackCapabilities = {
+                        label: deviceLabel, type: 'webcam',
+                        resolution: [trackSettings.width, trackSettings.height],
+                        refreshRate: trackSettings.frameRate
+                    }
                 }
-            }
-        } catch (e) { console.error(e); }
-    }
-    await extractSpeakersMicrophonesCameras();
+                track.stop();
+                return extractedTrackCapabilities;
+            });
+            if (type === 'audio' && direction === 'output') { capabilities.speakers.push(...trackCapabilities); }
+            else if (type === 'audio' && direction === 'input') { capabilities.microphone.push(...trackCapabilities); }
+            else if (type === 'video' && direction === 'input') { capabilities.camera.push(...trackCapabilities); }
+        }
+    } catch (e) { console.error(e); }
 
-    //--------------------------------------------------------------------------
-    //TODO: Remove the following commented out implementations once I'm sure the new one above is solid!main
+    // //----------------------------------------------------------------------------------------------------------------------------------------------------
+    // //--------------------------------------------------------------------------
+    // //TODO: Remove the following commented out implementations once I'm sure the new one above is solid!main
+    // //--------------------------------------------------------------------------
+    // //** SPEAKERS **************************************************************
     // //Create an audio context
     // const audioCtx = new AudioContext();
     // capabilities.speakers = {
@@ -145,7 +149,9 @@ async function getCapabilities() {
     // }
     // //Close the Audio Context
     // audioCtx.close();
+    // //--------------------------------------------------------------------------
 
+    // //--------------------------------------------------------------------------
     // //** MICROPHONE ************************************************************
     // //Execute the following code and just continue if something bad happens.
     // try {
@@ -180,8 +186,11 @@ async function getCapabilities() {
     // }
     // //If something bad happens just log the error to the console.
     // catch (e) { console.error(e); }
+    // //--------------------------------------------------------------------------
 
+    // //--------------------------------------------------------------------------
     // //** CAMERA ****************************************************************
+    // //--------------------------------------------------------------------------
     // //Execute the following code and just continue if something bad happens.
     // try {
     //     //Request a video stream with an absurd number of width, height and frame rate.
@@ -213,7 +222,8 @@ async function getCapabilities() {
     // }
     // //If something bad happens just log the error to the console.
     // catch (e) { console.error(e); }
-    //--------------------------------------------------------------------------
+    // //--------------------------------------------------------------------------
+    // //----------------------------------------------------------------------------------------------------------------------------------------------------
 
     //** INPUT *****************************************************************
     //TODO: Listen to input change events and update the capabilities accordingly:
