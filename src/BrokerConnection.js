@@ -74,6 +74,12 @@ module.exports = class BrokerConnection {
             this.jwtAccessToken = null;
             this.authenticate();
         });
+
+        process.on('SIGINT', () => {
+            this.tidyUpBeacons()
+                .then(() => { this.socket.close(); process.exit(); })
+                .catch(e => { console.error(e); process.exit(); });
+        });
     }
     authenticate() {
         let credentials;
@@ -112,43 +118,31 @@ module.exports = class BrokerConnection {
                 .then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
-                    process.on('SIGINT', () => {
-                        this.tidyUpBeacons()
-                            .then(() => {
-                                this.socket.close();
-                                process.exit();
-                            }).catch(e => {
-                                console.error(e);
-                                process.exit();
-                            });
-                    });
                     this.tidyUpBeacons().then(() => {
                         if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
                             this.beaconsBLE.beaconScanner.beaconsCreated = {};
                             this.beaconsBLE.beaconScanner.beaconsUpdated = {};
                             this.beaconsBLE.beaconScanner.removeAllListeners();
                             this.beaconsBLE.beaconScanner.on('beaconCreated', beacon => {
-                                this.beaconsService.create({
+                                this.beaconsService.patch(null, {
                                     user: user._id,
                                     deviceUuid: this.config.device_uuid,
                                     beaconKey: beacon.key,
                                     beacon: beacon
-                                }).then(beacon => {
-                                    console.log('Beacon Created:', beacon);
-                                }).catch(e => this.handleError(e));
+                                }, { query: { user: user._id, deviceUuid: this.config.device_uuid, beaconKey: beacon.key } })
+                                    .then(beacon => {
+                                        console.log('Beacon Created:', beacon);
+                                    }).catch(e => this.handleError(e));
                             });
                             this.beaconsBLE.beaconScanner.on('beaconUpdated', beacon => {
                                 this.beaconsService.patch(null, { beacon: beacon }, {
-                                    query: {
-                                        user: user._id,
-                                        deviceUuid: this.config.device_uuid,
-                                        beaconKey: beacon.key
-                                    }
+                                    query: { user: user._id, deviceUuid: this.config.device_uuid, beaconKey: beacon.key }
                                 }).then(beacons => {
                                     console.log('Beacons Patched:', beacons);
                                 }).catch(e => this.handleError(e));
                             });
                             this.beaconsBLE.beaconScanner.on('beaconRemoved', beacon => {
+                                console.log('Removing Beacon:', beacon);
                                 this.beaconsService.remove(null, {
                                     query: {
                                         user: user._id,

@@ -76,6 +76,7 @@ module.exports = class BeaconLogger {
                 }
             });
         }
+        process.on('SIGINT', () => { process.exit(); });
     }
     stop() {
         if (this.beaconScanner) {

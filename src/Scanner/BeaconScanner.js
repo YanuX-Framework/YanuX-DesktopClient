@@ -36,9 +36,7 @@ module.exports = class BeaconScanner extends EventEmitter {
                         beaconsCollection[beacon.key].addMeasurement(beacon);
                         this.emit('beaconRemoved', beaconsCollection[beacon.key]);
                         return true;
-                    } else {
-                        return false;
-                    }
+                    } else { return false; }
                 };
 
                 this.beaconsCreated = _.omitBy(this.beaconsCreated, clearExpiredBeacons(this.beaconsCreated));
@@ -61,6 +59,10 @@ module.exports = class BeaconScanner extends EventEmitter {
                     Object.values(this.beaconsUpdated).forEach(beacon => this.emit('beaconUpdated', beacon));
                     this.emit('beaconsUpdated', _.assign({}, this.beaconsCreated, this.beaconsUpdated));
                 }
+                console.log('Refreshing Beacons - Created: ' +
+                    Object.values(this.beaconsCreated).length +
+                    ' Updated: ' +
+                    Object.values(this.beaconsUpdated).length);
             }, this._refreshInterval);
         }
 
@@ -79,6 +81,7 @@ module.exports = class BeaconScanner extends EventEmitter {
                 _startScanning();
             }
         });
+
         noble.on('discover', peripheral => {
             this._beaconDetector.peripheral = peripheral;
             const beacon = this._beaconDetector.beacon;
