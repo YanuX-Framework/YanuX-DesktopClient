@@ -59,14 +59,12 @@ module.exports = class BrokerConnection {
             this.authenticate();
         });
 
-        this.client.io.on('reconnect', attempt => {
-            console.log(`Reconnected after ${attempt} attempts`);
-            this.beaconsBLE.startScanning();
-            this.authenticate();
-        });
-
         this.client.io.on('disconnect', reason => {
             this.beaconsBLE.stopScanning();
+        });
+
+        this.client.io.on('reconnect', attempt => {
+            console.log(`Reconnected after ${attempt} attempts`);
         });
 
         this.client.on('reauthentication-error', err => {
@@ -84,16 +82,9 @@ module.exports = class BrokerConnection {
     authenticate() {
         let credentials;
         if (!this.jwtAccessToken) {
-            credentials = {
-                strategy: 'yanux',
-                clientId: this.config.client_id,
-                accessToken: this.config.access_token
-            }
+            credentials = { strategy: 'yanux', clientId: this.config.client_id, accessToken: this.config.access_token };
         } else {
-            credentials = {
-                strategy: 'jwt',
-                accessToken: this.jwtAccessToken,
-            }
+            credentials = { strategy: 'jwt', accessToken: this.jwtAccessToken };
         }
         if (credentials.accessToken) {
             this.client.authenticate(credentials)
