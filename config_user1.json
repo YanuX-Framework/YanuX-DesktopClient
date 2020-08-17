@@ -1,5 +1,5 @@
 {
-    "device_name": "Laptop",
+    "device_name": "z",
     "http_server_port": 3013,
     "allow_zeroconf": false,
     "client_id": "yanux-desktop-client",
