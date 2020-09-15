@@ -18,7 +18,8 @@ function createWindow () {
       //Enable node integration.
       nodeIntegration: true,
       //Needed to get a few extra types of sensors from the Generic Sensors API.
-      enableBlinkFeatures: 'SensorExtraClasses'
+      enableBlinkFeatures: 'SensorExtraClasses',
+      enableRemoteModule: true
     },
     //Hide the window since this is supposed to be used on CLI application.
     //However, I many eventually convert the whole YanuX Desktop Client application to an Electron based desktop application.
