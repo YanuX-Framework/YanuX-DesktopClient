@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "YanuX Desktop Client",
   "repository": "github:YanuX-Framework/YanuX-DesktopClient",
+  "private": true,
   "author": {
     "name": "Pedro Albuquerque Santos",
     "email": "pedro@albuquerques.net",
     "url": "https://pedro.albuquerques.net"
   },
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "main": "index.js",
   "scripts": {
     "execute": "node app.js",
@@ -33,7 +34,7 @@
     "lodash": "^4.17.20",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.4",
-    "query-string": "^6.13.2",
+    "query-string": "^6.13.4",
     "request": "^2.88.2",
     "socket.io-client": "^2.3.0",
     "uuid": "^8.3.0",
