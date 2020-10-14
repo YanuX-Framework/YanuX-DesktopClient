@@ -10,7 +10,7 @@
     "url": "https://pedro.albuquerques.net"
   },
   "license": "GPL-3.0-or-later",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "execute": "node app.js",
     "start": "npm run watch",
