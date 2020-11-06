@@ -20,6 +20,7 @@ module.exports = class IBeaconParser extends BeaconParser {
             ].join('-').toUpperCase();
             return new IBeacon(
                 this.peripheral.id,
+                this.peripheral.address,
                 uuid,
                 this.manufacturer.slice(20, 22).readUInt16BE(0),
                 this.manufacturer.slice(22, 24).readUInt16BE(0),

@@ -1,8 +1,8 @@
 const Beacon = require('./Beacon');
 
 module.exports.EddystoneUid = class EddystoneUid extends Beacon {
-    constructor(id, namespace, instance, txPower, rssi, timestamp) {
-        super(id, 'Eddystone-UID', [namespace, instance], txPower, rssi, timestamp);
+    constructor(id, address, namespace, instance, txPower, rssi, timestamp) {
+        super(id, address, 'Eddystone-UID', [namespace, instance], txPower, rssi, timestamp);
     }
 
     get namespace() {
@@ -15,8 +15,8 @@ module.exports.EddystoneUid = class EddystoneUid extends Beacon {
 }
 
 module.exports.EddystoneUrl = class EddystoneUrl extends Beacon {
-    constructor(id, url, txPower, rssi, timestamp) {
-        super(id, 'Eddystone-URL', [url], txPower, rssi, timestamp);
+    constructor(id, address, url, txPower, rssi, timestamp) {
+        super(id, address, 'Eddystone-URL', [url], txPower, rssi, timestamp);
     }
 
     get url() {
@@ -25,8 +25,8 @@ module.exports.EddystoneUrl = class EddystoneUrl extends Beacon {
 }
 
 module.exports.EddystoneTlm = class EddystoneTlm extends Beacon {
-    constructor(id, batteryVoltage, temperature, advCnt, secCnt, rssi, timestamp) {
-        super(id, 'Eddystone-TLM', [batteryVoltage, temperature, advCnt, secCnt], null, rssi, timestamp);
+    constructor(id, address, batteryVoltage, temperature, advCnt, secCnt, rssi, timestamp) {
+        super(id, address, 'Eddystone-TLM', [batteryVoltage, temperature, advCnt, secCnt], null, rssi, timestamp);
     }
 
     get batteryVoltage() {
@@ -48,8 +48,8 @@ module.exports.EddystoneTlm = class EddystoneTlm extends Beacon {
 
 
 module.exports.EddystoneEid = class EddystoneEid extends Beacon {
-    constructor(id, eid, txPower, rssi, timestamp) {
-        super(id, 'Eddystone-EID', [eid], txPower, rssi, timestamp);
+    constructor(id, address, eid, txPower, rssi, timestamp) {
+        super(id, address, 'Eddystone-EID', [eid], txPower, rssi, timestamp);
     }
 
     get eid() {

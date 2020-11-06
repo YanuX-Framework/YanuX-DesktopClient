@@ -7,11 +7,14 @@ const auth = require('@feathersjs/authentication-client');
 const request = require('request');
 const jose = require('jose');
 const fetch = require('node-fetch');
+const BeaconsBLE = require('./BeaconsBLE');
+const IPSServerConnection = require('./IPSServerConnection');
 
 module.exports = class BrokerConnection {
-    constructor(config, beaconsBLE, capabilitiesCollector) {
+    constructor(config, capabilitiesCollector) {
         this.config = config;
-        this.beaconsBLE = beaconsBLE;
+        this.beaconsBLE = !config.ips_server_url ? new BeaconsBLE(config) : null;
+        if (this.beaconsBLE) { this.beaconsBLE.startAdvertising(); }
         this.capabilitiesCollector = capabilitiesCollector;
     }
     get config() {
@@ -55,12 +58,12 @@ module.exports = class BrokerConnection {
         }
 
         this.client.io.on('connect', () => {
-            this.beaconsBLE.startScanning();
+            if (this.beaconsBLE) { this.beaconsBLE.startScanning(); }
             this.authenticate();
         });
 
         this.client.io.on('disconnect', reason => {
-            this.beaconsBLE.stopScanning();
+            if (this.beaconsBLE) { this.beaconsBLE.stopScanning(); }
         });
 
         this.client.io.on('reconnect', attempt => {
@@ -109,6 +112,10 @@ module.exports = class BrokerConnection {
                 .then(user => {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
+
+                    const ipsServerConnection = new IPSServerConnection(this.config, user);
+                    ipsServerConnection.init();
+
                     this.tidyUpBeacons().then(() => {
                         if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
                             this.beaconsBLE.beaconScanner.beaconsCreated = {};

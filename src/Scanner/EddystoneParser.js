@@ -65,7 +65,7 @@ module.exports.EddystoneUidParser = class EddystoneUidParser extends EddystonePa
         // Eddystone-UID
         // https://github.com/google/eddystone/tree/master/eddystone-uid
         return new EddystoneBeacon.EddystoneUid(
-            this.peripheral.id,
+            this.peripheral.address,
             data.slice(2, 12).toString('hex').toUpperCase(),
             data.slice(12, 18).toString('hex').toUpperCase(),
             data.readInt8(1),
@@ -105,7 +105,7 @@ module.exports.EddystoneUrlParser = class EddystoneUrlParser extends EddystonePa
             }
         }
         return new EddystoneBeacon.EddystoneUrl(
-            this.peripheral.id,
+            this.peripheral.address,
             url,
             data.readInt8(1),
             this.peripheral.rssi,
@@ -134,7 +134,7 @@ module.exports.EddystoneTlmParser = class EddystoneTlmParser extends EddystonePa
             return null;
         }
         return new EddystoneBeacon.EddystoneTlm(
-            this.peripheral.id,
+            this.peripheral.address,
             data.readUInt16BE(2),
             data.readInt16BE(4) / 256,
             data.readUInt32BE(6),
@@ -162,6 +162,7 @@ module.exports.EddystoneEidParser = class EddystoneEidParser extends EddystonePa
         // https://github.com/google/eddystone/tree/master/eddystone-eid
         return new EddystoneBeacon.EddystoneEid(
             this.peripheral.id,
+            this.peripheral.address,
             data.slice(2, 10).toString('hex'),
             data.readInt8(1),
             this.peripheral.rssi,

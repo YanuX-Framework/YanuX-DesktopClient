@@ -85,6 +85,7 @@ module.exports = class BeaconDetector {
                 case null:
                     this._beacon = new Beacon(
                         this.peripheral.id,
+                        this.peripheral.address,
                         'Unknown',
                         [this.peripheral.address],
                         null,

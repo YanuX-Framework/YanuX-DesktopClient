@@ -8,17 +8,15 @@ const _ = require('lodash');
 const Config = require('./src/Config');
 const CapabilitiesCollector = require('./src/CapabilitiesCollector');
 const BrokerConnection = require('./src/BrokerConnection');
-const BeaconsBLE = require('./src/BeaconsBLE');
 const HTTPServer = require('./src/HTTPServer');
 const Zeroconf = require('./src/Zeroconf');
 
 function start(config, capabilitiesCollector) {
-    const beaconsBLE = new BeaconsBLE(config);
-    beaconsBLE.startAdvertising();
-    const brokerConnection = new BrokerConnection(config, beaconsBLE, capabilitiesCollector)
+    const brokerConnection = new BrokerConnection(config, capabilitiesCollector);
     if (_.isString(config.access_token)) {
         brokerConnection.connect();
     }
+
     const httpServer = new HTTPServer(config, brokerConnection);
     httpServer.listen();
     const zeroconf = new Zeroconf(config, brokerConnection);

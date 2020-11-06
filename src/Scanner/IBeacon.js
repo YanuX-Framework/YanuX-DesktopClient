@@ -1,8 +1,8 @@
 const Beacon = require('./Beacon');
 
 module.exports = class IBeacon extends Beacon {
-    constructor(id, uuid, major, minor, txPower, rssi, timestamp) {
-        super(id, 'iBeacon', [uuid, major, minor], txPower, rssi, timestamp);
+    constructor(id, address, uuid, major, minor, txPower, rssi, timestamp) {
+        super(id, address, 'iBeacon', [uuid, major, minor], txPower, rssi, timestamp);
     }
 
     get uuid() {

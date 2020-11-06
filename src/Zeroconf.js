@@ -18,9 +18,9 @@ module.exports = class Zeroconf {
                     default:
                         break;
                 }
-                if (this.config.allow_zeroconf === true
-                    && this._broker_url
-                    && this._oauth2_authorization_server_url) {
+                if (this.config.allow_zeroconf === true &&
+                    this._broker_url &&
+                    this._oauth2_authorization_server_url) {
                     this.config.broker_url = this._broker_url;
                     this.config.oauth2_authorization_server_url = this._oauth2_authorization_server_url;
                     this.config.save(err => {

@@ -1,6 +1,7 @@
 module.exports = class Beacon {
-    constructor(id, type, values, txPower, rssi, timestamp = new Date().getTime()) {
+    constructor(id, address, type, values, txPower, rssi, timestamp = new Date().getTime()) {
         this.id = id;
+        this.address = address;
         this.type = type;
         this.values = values;
         this.txPower = txPower;
@@ -27,6 +28,7 @@ module.exports = class Beacon {
     }
     addMeasurement(beacon) {
         this.id = beacon.id;
+        this.address = beacon.address;
         this.type = beacon.type;
         this.values = beacon.values;
         this.rssi = beacon.rssi;

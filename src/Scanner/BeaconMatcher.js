@@ -3,16 +3,21 @@ const Beacon = require('./Beacon');
 
 module.exports = class BeaconMatcher extends Beacon {
     constructor(
-        id = null,
+        /*id = null,*/
+        address = null,
         type = null,
         values = [],
         txPower = null,
         rssi = null,
         timestamp = null) {
-        super(id, type, values, txPower, rssi, timestamp);
+        super(/*id*/ null, address, type, values, txPower, rssi, timestamp);
     }
     match(beacon) {
-        if ((_.isNil(this.id) || _.isEqual(this.id, beacon.id))
+        if (/*
+            (_.isNil(this.id) || _.isEqual(this.id, beacon.id))
+            &&
+            */
+            (_.isNil(this.address) || _.isEqual(this.address, beacon.address))
             && (_.isNil(this.type) || _.isEqual(this.type, beacon.type))
             && (_.isNil(this.values)
                 || _.isEqual(this.values, this.values.map((value, index) => value === null ? null : beacon.values[index]))
