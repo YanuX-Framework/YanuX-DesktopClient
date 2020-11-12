@@ -15,6 +15,8 @@ module.exports = class Config {
             callback(err, this);
         });
     }
+    
+    //TODO: Add defaults for new configuration properties.
     static get DEFAULT_CONFIG_PATH() { return './config.json'; }
     static get DEFAULT_STRINGIFY_SPACES() { return 4; }
     static get DEFAULT_BEACON_SCAN() { return false; }
@@ -39,6 +41,7 @@ module.exports = class Config {
         }
         fs.writeFile(this.path, JSON.stringify(this, null, Config.DEFAULT_STRINGIFY_SPACES), writeCallback);
     }
+    //TODO: Validate new configuration properties. 
     validate() {
         if (!_.isString(this.device_name)) {
             throw new Error('"device_name" value is either missing or invalid');

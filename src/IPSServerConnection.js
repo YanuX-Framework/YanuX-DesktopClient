@@ -8,10 +8,11 @@ module.exports = class IPSServerConnection {
         this.config = config;
         this.user = user;
         this.beaconsBLE = this.config.ips_server_url ? new BeaconsBLE(this.config) : null;
-        this.wifiScanner = this.config.ips_server_url ? new WifiScanner(this.config.wifi_refresh_interval || this.config.beacons_refresh_interval) : null;
+        this.wifiScanner = this.config.wifi_scan && this.config.ips_server_url ?
+            new WifiScanner(this.config.wifi_refresh_interval || this.config.beacons_refresh_interval) : null;
         this.currentBeacons = {};
         this.currentNetworks = [];
-        this.timeBetweenUpdates = Math.max(this.config.wifi_refresh_interval, this.config.beacons_refresh_interval);
+        this.timeBetweenUpdates = Math.min(this.config.wifi_refresh_interval, this.config.beacons_refresh_interval);
         this.lastUpdateTime = null;
         this._updateInterval = null;
     }
@@ -67,10 +68,7 @@ module.exports = class IPSServerConnection {
 
 
     init() {
-        if (this.beaconsBLE && this.wifiScanner) {
-            this.beaconsBLE.startAdvertising();
-            this.beaconsBLE.startScanning();
-
+        if (this.beaconsBLE) {
             this.beaconsBLE.beaconScanner.on('beaconsUpdated', beacons => {
                 this.currentBeacons = beacons;
                 this.updateServer();
@@ -81,11 +79,17 @@ module.exports = class IPSServerConnection {
                 this.updateServer();
             });
 
+            this.beaconsBLE.start();
+        }
+
+        if (this.wifiScanner) {
             this.wifiScanner.startScanning(networks => {
                 this.currentNetworks = networks;
                 this.updateServer();
             });
+        }
 
+        if (this.beaconsBLE || this.wifiScanner) {
             this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
         }
     }
@@ -111,27 +115,21 @@ module.exports = class IPSServerConnection {
                 })),
                 mSensorInformationList: [{
                     name: 'ORIENTATION',
-                    x_value: this.config.orientation * (Math.PI / 180),
-                    y_value: 0,
-                    z_value: 0
+                    x_value: (d => d <= 180 ? -d : 360 - d)(this.config.orientation) * (Math.PI / 180),
+                    y_value: 0, z_value: 0
                 }]
             };
-
             fetch(this.config.ips_server_url + 'scanning/', {
                 method: 'post',
                 body: JSON.stringify(scanningUpdate),
                 headers: { 'Content-Type': 'application/json' },
-            })
-                //.then(res => res.text())
-                //.then(txt => {
-                .then(() => {
-                    //writeFileSync('debug.html', txt);
-                    console.log(`Updated IPS Server [${this.lastUpdateTime}]:`, scanningUpdate);
-                    this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
-                }).catch(e => {
-                    console.log(`Error Updating IPS Server [${this.lastUpdateTime}]:`, e);
-                    this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
-                });
+            }).then(res => {
+                console.log(`Updated IPS Server [${this.lastUpdateTime}]:`, scanningUpdate, '\nStatus:', res.status);
+                this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
+            }).catch(e => {
+                console.log(`Error Updating IPS Server [${this.lastUpdateTime}]:`, e);
+                this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
+            });
         }
     }
 }
