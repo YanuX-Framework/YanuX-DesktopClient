@@ -24,11 +24,11 @@
     "beacons_print_updated": false,
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
-    "beacons_refresh_interval": 3000,
-    "beacons_inactivity_timer": 3000,
+    "beacons_refresh_interval": 500,
+    "beacons_inactivity_timer": 1500,
     "wifi_scan": true,
-    "wifi_refresh_interval": 3000,
-    "orientation": -153,
+    "wifi_refresh_interval": 333,
+    "orientation": 180,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "display": [
