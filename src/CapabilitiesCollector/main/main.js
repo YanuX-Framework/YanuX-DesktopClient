@@ -7,7 +7,7 @@ process.env.GOOGLE_API_KEY = keys.google_api_key;
 //A few imports from the electron module.
 const { app, BrowserWindow, ipcMain } = require('electron');
 
-function createWindow () {
+function createWindow() {
   //Create the browser window.
   let win = new BrowserWindow({
     //window width

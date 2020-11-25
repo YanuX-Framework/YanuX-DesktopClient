@@ -1,12 +1,13 @@
 //Electron Imports
 const { remote, ipcRenderer } = require('electron')
 
+console.log('Remote:', remote.screen);
 //Brute force polling update mode (DON'T USE IT OTHER THAN FOR TESTING)
 //setInterval(main, 10000);
 navigator.mediaDevices.ondevicechange = main;
-remote.screen.on('display-added', main);
-remote.screen.on('display-removed', main);
-remote.screen.on('display-metrics-changed', main);
+//remote.screen.on('display-added', main);
+//remote.screen.on('display-removed', main);
+//remote.screen.on('display-metrics-changed', main);
 
 //TODO: 
 //Detect other changes to the capabilities!
