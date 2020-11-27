@@ -96,7 +96,7 @@ function createWindow() {
     },
     //Hide the window since this is supposed to be used on CLI application.
     //However, I many eventually convert the whole YanuX Desktop Client application to an Electron based desktop application.
-    show: true
+    show: false
   });
 
   //Load the internal window/index.html page.
