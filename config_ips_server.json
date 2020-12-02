@@ -28,7 +28,7 @@
     "beacons_inactivity_timer": 6000,
     "wifi_scan": true,
     "wifi_refresh_interval": 3000,
-    "orientation": 240,
+    "orientation": 330,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "type": "desktop"
