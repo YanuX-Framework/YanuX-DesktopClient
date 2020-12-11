@@ -16,6 +16,7 @@ module.exports = class BrokerConnection {
         this.beaconsBLE = !config.ips_server_url ? new BeaconsBLE(config) : null;
         if (this.beaconsBLE) { this.beaconsBLE.startAdvertising(); }
         this.capabilitiesCollector = capabilitiesCollector;
+        this.ipsServerConnection = null;
     }
     get config() {
         return this._config;
@@ -113,8 +114,10 @@ module.exports = class BrokerConnection {
                     this.client.set('user', user);
                     console.log('User', this.client.get('user'));
 
-                    const ipsServerConnection = new IPSServerConnection(this.config, user);
-                    ipsServerConnection.init();
+                    if (!this.ipsServerConnection) {
+                        this.ipsServerConnection = new IPSServerConnection(this.config, user);
+                        this.ipsServerConnection.init();
+                    }
 
                     this.tidyUpBeacons().then(() => {
                         if (this.beaconsBLE && this.beaconsBLE.beaconScanner) {
@@ -153,10 +156,11 @@ module.exports = class BrokerConnection {
                             });
                         }
                         console.log('Device Capabilities:', this.config.device_capabilities);
+                        const beaconValues = this.config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS
                         return this.devicesService.patch(null, {
                             deviceUuid: this.config.device_uuid,
                             name: this.config.device_name,
-                            beaconValues: this.config.beacon_advertiser_parameters || Config.DEFAULT_BEACON_ADVERTISER_PARAMETERS,
+                            beaconValues: beaconValues.map(bV => _.isString(bV) ? bV.toLowerCase() : bV),
                             capabilities: this.config.device_capabilities
                         }, { query: { deviceUuid: this.config.device_uuid } });
                     }).then(devices => {

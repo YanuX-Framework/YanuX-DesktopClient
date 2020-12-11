@@ -88,7 +88,7 @@ module.exports = class IPSServerConnection {
                 this.updateServer();
             });
         }
-
+        
         if (this.beaconsBLE || this.wifiScanner) {
             this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
         }
