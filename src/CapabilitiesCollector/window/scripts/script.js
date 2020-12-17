@@ -93,6 +93,9 @@ async function getCapabilities() {
             const [kind, type, direction] = d.kind.match(/(\w+)(input|output)/i);
             let stream = null;
             let mediaConstraints = null;
+            //TODO:
+            //I should probably improve this logic and change both the capabilities and constraints definitions to allow for the support of
+            //multiple speakers/microphone/camera "qualities" instead of just trying to get the highest possible and matching against that.
             if (type === 'audio') {
                 mediaConstraints = { audio: { deviceId: { exact: d.deviceId }, channelCount: { ideal: 32 }, sampleRate: { ideal: 192000 }, sampleSize: { ideal: 64 } } };
             } else if (type === 'video') {
