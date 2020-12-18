@@ -25,14 +25,14 @@
     "beacons_print_cleared": false,
     "beacons_clear_console": false,
     "beacons_refresh_interval": 3000,
-    "beacons_inactivity_timer": 4000,
-    "wifi_scan": true,
+    "beacons_inactivity_timer": 5000,
+    "wifi_scan": false,
     "wifi_refresh_interval": 3000,
     "orientation": 0,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "type": "desktop"
     },
-    "access_token": "YoPfhhS3heFBHXkcwhetD1w6puzso5c1xltVRy1WAqIygHS3BIrER7PT6kUZkQxK18qwwSHCdmpsEy2iaRDfBUNvF3Xs4FHv0qEIJBQ5tuW6TAnU1fCEFanio6piVoddRQ7D3G3JEuSQDwTIaBDxar9cpoCWTJVONuhHbcrDFHpCcokTUoHSRqSq2Iq0sKrofwJahwSikciYfyx0PHxP0DgrGsVYmjsmh1oe5vF5iIGlyH6rPHCT5n8qBeAlzO1F",
-    "refresh_token": "ID7ADv5RUrjvimhbCW538A1FjX20bFeAjZV56sVYMzwyuu18EmFctOIy6oUB3BNzXydP8EMsc3ipN6mEGnPdVXBm7QJKNcGbaafKVfpln7onRN27dJ4IUyZqPEtGBabtBZeLsPBbTwGDBwBCHBF4tcQdVFeHjdS8u37MiJ6ktpBXmCu4BDHfxZU0T6C2QWWdbKRZeiLq2j7bhf1fuHBynGsNYsTSEF2fRZo0IOdog9vStc5Md0pexbmQPOEpfiVF"
+    "access_token": "bpBQU1Nyca3NZjlvx3KFT3HLbWc31X8kAQ8BNGJKr2jAhXfz9QAdTA0ATgD8iscyCFWEnEptl6hQYIRXMTevUxawemQ0LZaQSl5VY7xBJQZEawALdlCaIiTvztsYSEEjBqTpAsUaw6X8RjoYbEyr1saHFRoF9mDBAv7NV8ICuVy993TNGhGBNM2M9DmK7hbOUa8EkQmrwJQN03LgwGM52IqTunVA5kfljthcA9N5lALpaT3lC3NWvDbnZ1sRHQGX",
+    "refresh_token": "rbf5DXKeRjjoXe3WyWeHfFMHoubdtvpDMAN2XbrOFCBRgv2B5cUOPZxbah5F0vwAEx8AMVCmJ9Mt3FBALNmKVK85UWcgwZtVZrLbkaRoPNeNCzOPlAoQg6fWEsGNHEARZ0UcHtUfzB283VQCaj8ssneUua36hDjwZNiPogLNXLix7eQEJkW1Opk6tINDEtkwkaUrMmJ7Y4MHLuMZwUy2JnXLPwkAgblrX4quaWH8s8tXB9BERbJIf9bFBrGlydsp"
 }

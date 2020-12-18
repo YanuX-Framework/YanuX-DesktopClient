@@ -97,9 +97,9 @@ async function getCapabilities() {
             //I should probably improve this logic and change both the capabilities and constraints definitions to allow for the support of
             //multiple speakers/microphone/camera "qualities" instead of just trying to get the highest possible and matching against that.
             if (type === 'audio') {
-                mediaConstraints = { audio: { deviceId: { exact: d.deviceId }, channelCount: { ideal: 32 }, sampleRate: { ideal: 192000 }, sampleSize: { ideal: 64 } } };
+                mediaConstraints = { audio: { deviceId: { exact: d.deviceId }, channelCount: { ideal: 128 }, sampleRate: { ideal: 384000 }, sampleSize: { ideal: 128 } } };
             } else if (type === 'video') {
-                mediaConstraints = { video: { deviceId: { exact: d.deviceId }, width: { ideal: 4096 }, height: { ideal: 4096 }, frameRate: { ideal: 1024 } } };
+                mediaConstraints = { video: { deviceId: { exact: d.deviceId }, width: { ideal: 8192 }, height: { ideal: 8192 }, frameRate: { ideal: 30 } } };
             } else { continue; }
             try { stream = await navigator.mediaDevices.getUserMedia(mediaConstraints); } catch (e) { console.log(e); continue; }
             const trackCapabilities = stream.getTracks().map(track => {
@@ -131,30 +131,26 @@ async function getCapabilities() {
                 track.stop();
                 return extractedTrackCapabilities;
             });
-            if (type === 'audio' && direction === 'output') { capabilities.speakers.push(...trackCapabilities); }
-            else if (type === 'audio' && direction === 'input') { capabilities.microphone.push(...trackCapabilities); }
+            //if (type === 'audio' && direction === 'output') { capabilities.speakers.push(...trackCapabilities); }
+            if (type === 'audio' && direction === 'input') { capabilities.microphone.push(...trackCapabilities); }
             else if (type === 'video' && direction === 'input') { capabilities.camera.push(...trackCapabilities); }
         }
     } catch (e) { console.error(e); }
 
-    // //----------------------------------------------------------------------------------------------------------------------------------------------------
-    // //--------------------------------------------------------------------------
-    // //TODO: Remove the following commented out implementations once I'm sure the new one above is solid!main
-    // //--------------------------------------------------------------------------
-    // //** SPEAKERS **************************************************************
-    // //Create an audio context
-    // const audioCtx = new AudioContext();
-    // capabilities.speakers = {
-    //     //The audio context does not provide enough information to determine the time of speakers. So I'll just set them to unknown.
-    //     type: 'unknown',
-    //     //Get the maximum number of channels in the destination of the audio context.
-    //     channels: audioCtx.destination.maxChannelCount,
-    //     //Get the audio context sample rate.
-    //     samplingRate: audioCtx.sampleRate
-    // }
-    // //Close the Audio Context
-    // audioCtx.close();
-    // //--------------------------------------------------------------------------
+    //** SPEAKERS **************************************************************
+    //Create an audio context
+    const audioCtx = new AudioContext();
+    capabilities.speakers = [{
+        //The audio context does not provide enough information to determine the time of speakers. So I'll just set them to unknown.
+        type: 'unknown',
+        //Get the maximum number of channels in the destination of the audio context.
+        channels: audioCtx.destination.maxChannelCount,
+        //Get the audio context sample rate.
+        samplingRate: audioCtx.sampleRate
+    }];
+    //Close the Audio Context
+    audioCtx.close();
+    //--------------------------------------------------------------------------
 
     // //--------------------------------------------------------------------------
     // //** MICROPHONE ************************************************************
