@@ -115,7 +115,7 @@ module.exports = class IPSServerConnection {
                 })),
                 mSensorInformationList: [{
                     name: 'ORIENTATION',
-                    x_value: (d => d <= 180 ? -d : 360 - d)(this.config.orientation) * (Math.PI / 180),
+                    x_value: this.config.orientation * (Math.PI / 180),
                     y_value: 0, z_value: 0
                 }]
             };
