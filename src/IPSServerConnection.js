@@ -88,7 +88,7 @@ module.exports = class IPSServerConnection {
                 this.updateServer();
             });
         }
-        
+
         if (this.beaconsBLE || this.wifiScanner) {
             this._updateInterval = setInterval(() => this.updateServer(), this.timeBetweenUpdates)
         }
@@ -115,7 +115,8 @@ module.exports = class IPSServerConnection {
                 })),
                 mSensorInformationList: [{
                     name: 'ORIENTATION',
-                    x_value: this.config.orientation * (Math.PI / 180),
+                    x_value: (this.config.orientation > 180 ? -360 + this.config.orientation : this.config.orientation) * (Math.PI / 180),
+                    //x_value: this.config.orientation * (Math.PI / 180),
                     y_value: 0, z_value: 0
                 }]
             };
