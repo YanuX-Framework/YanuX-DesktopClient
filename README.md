@@ -1,5 +1,5 @@
 # YanuX Desktop Client
-This is part of the [__YanuX Frameworl__](https://yanux-framework.github.io/). 
+This is part of the [__YanuX Framework__](https://yanux-framework.github.io/). 
 
 It is the __Desktop Client__ for the [__YanuX Framework__](https://yanux-framework.github.io/). It incorporates both the __YanuX Orchestrator__ component, by extracting the capabilities of the devices where it runs, and of the role of an __Indoor Positioning Client__ by continuously scanning for __Wi-Fi Access Points__ and __Bluetooth Low Energy Beacons__ (iBeacons) and submitting that information to the [__Indoor Positioning Server__](https://github.com/YanuX-Framework/YanuX-IPSServer) so that the devices can be positioned.
 
@@ -24,7 +24,7 @@ Options:
       --help                        Show help                          [boolean]
 
 ```
-### TODO:
+### TO DO:
 - Provide additional documentation.
 
 ## License
