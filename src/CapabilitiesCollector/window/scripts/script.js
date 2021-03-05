@@ -1,5 +1,5 @@
 //Electron Imports
-const { ipcRenderer } = require('electron')
+//const { ipcRenderer } = require('electron')
 
 //Brute force polling update mode (DON'T USE IT OTHER THAN FOR TESTING)
 //setInterval(main, 10000);
@@ -410,10 +410,7 @@ async function main() {
     //Log the object for debugging.
     console.log('Capabilities', capabilities);
     //Send the object to Electron's Main Process.
-    ipcRenderer.send('extracted-capabilities', capabilities);
+    electron.extractedCapabilities(capabilities)
 }
 
-ipcRenderer.on('extract-capabilities', main);
-
-// //Execute the main function!
-// main();
+electron.onExtractCapabilities(main);

@@ -4,6 +4,7 @@ const keys = require('./keys');
 //Set the process's Google API Key.
 process.env.GOOGLE_API_KEY = keys.google_api_key;
 
+const path = require('path')
 //A few imports from the electron module.
 const { app, screen, ipcMain, BrowserWindow } = require('electron');
 
@@ -89,10 +90,9 @@ function createWindow() {
     //window height
     height: 800,
     webPreferences: {
-      //Enable node integration.
-      nodeIntegration: true,
       //Needed to get a few extra types of sensors from the Generic Sensors API.
-      enableBlinkFeatures: 'SensorExtraClasses'
+      enableBlinkFeatures: 'SensorExtraClasses',
+      preload: path.join(__dirname, "preload.js")
     },
     //Hide the window since this is supposed to be used on CLI application.
     //However, I many eventually convert the whole YanuX Desktop Client application to an Electron based desktop application.
@@ -118,9 +118,6 @@ function createWindow() {
   screen.on('display-removed', updateDisplayCapabilities);
   screen.on('display-metrics-changed', updateDisplayCapabilities);
 }
-
-
-
 
 app.allowRendererProcessReuse = true;
 //Execute the createWindow function once the application is launched and ready.
