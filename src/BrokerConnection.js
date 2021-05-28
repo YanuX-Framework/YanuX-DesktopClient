@@ -5,7 +5,9 @@ const feathers = require('@feathersjs/feathers');
 const socketio = require('@feathersjs/socketio-client');
 const auth = require('@feathersjs/authentication-client');
 const request = require('request');
-const jose = require('jose');
+const { decodeProtectedHeader } = require('jose/util/decode_protected_header');
+const { createRemoteJWKSet } = require('jose/jwks/remote')
+const { jwtVerify } = require('jose/jwt/verify')
 const fetch = require('node-fetch');
 const BeaconsBLE = require('./BeaconsBLE');
 const IPSServerConnection = require('./IPSServerConnection');
@@ -95,14 +97,15 @@ module.exports = class BrokerConnection {
                 .then(response => {
                     const accessToken = response.accessToken;
                     console.log('Logged in successfully with the following JWT:\n' + accessToken + '\n');
-                    const decodedToken = jose.JWT.decode(accessToken, { complete: true });
+                    const header = decodeProtectedHeader(accessToken);
+                    console.log('Decoded Token Header:', header);
                     return new Promise((resolve, reject) => {
-                        if (decodedToken.header && decodedToken.header.jku && decodedToken.header.jku.startsWith(this.config.broker_url)) {
-                            //TODO: Perhaps I should cache the JKU URL contents and corresponding KeyStore for better performance.
-                            fetch(decodedToken.header.jku).then(response => response.json()).then(json => {
-                                const keys = (json.keys || []).map(k => jose.JWK.asKey(k))
-                                const keyStore = new jose.JWKS.KeyStore(keys);
-                                resolve(jose.JWT.verify(accessToken, keyStore));
+                        if (header && header.alg && header.jku && header.jku.startsWith(this.config.broker_url)) {
+                            const JWKS = createRemoteJWKSet(new URL(header.jku))
+                            jwtVerify(accessToken, JWKS, { algorithms: [header.alg] }).then(result => {
+                                if (result && result.protectedHeader && result.payload) {
+                                    resolve(result.payload);
+                                } else { reject(new InvalidBrokerJwt('The JWT is not valid.')); }
                             }).catch(e => reject(e));
                         } else { reject(new Error('"jku" is either missing from the token header or points to a an untrusted URL')) }
                     });
