@@ -1,5 +1,5 @@
-const { writeFileSync } = require('fs');
-const fetch = require('node-fetch');
+//const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const BeaconsBLE = require('./BeaconsBLE');
 const WifiScanner = require('./Scanner/WifiScanner');
 

@@ -119,7 +119,7 @@ function createWindow() {
   screen.on('display-metrics-changed', updateDisplayCapabilities);
 }
 
-app.allowRendererProcessReuse = true;
+//app.allowRendererProcessReuse = true;
 //Execute the createWindow function once the application is launched and ready.
 app.on('ready', createWindow);
 

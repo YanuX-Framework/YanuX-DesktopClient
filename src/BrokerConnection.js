@@ -8,7 +8,6 @@ const request = require('request');
 const { decodeProtectedHeader } = require('jose/util/decode_protected_header');
 const { createRemoteJWKSet } = require('jose/jwks/remote')
 const { jwtVerify } = require('jose/jwt/verify')
-const fetch = require('node-fetch');
 const BeaconsBLE = require('./BeaconsBLE');
 const IPSServerConnection = require('./IPSServerConnection');
 
