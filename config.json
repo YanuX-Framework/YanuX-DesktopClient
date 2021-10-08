@@ -14,7 +14,9 @@
     "beacon_matcher_parameters": [
         null,
         "iBeacon",
-        []
+        [
+            "113069EC-6E64-4BD3-6810-DE01B36E8A3E"
+        ]
     ],
     "beacon_advertiser_parameters": [
         "113069EC-6E64-4BD3-6810-DE01B36E8A3E",
@@ -28,7 +30,7 @@
     "beacons_inactivity_timer": 5000,
     "wifi_scan": false,
     "wifi_refresh_interval": 3000,
-    "orientation": 30,
+    "orientation": 335,
     "device_uuid": "9ab8e750-bc1e-11e8-a769-3f2e91eebf08",
     "device_capabilities": {
         "type": "desktop"
