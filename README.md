@@ -26,6 +26,7 @@ Options:
 ```
 ### TO DO:
 - Provide additional documentation.
+- Migrate to a newer `socket.io-client` package once supported by **Feathers**.
 
 ## License
 This work is licensed under [__GNU General Public License Version 3__](LICENSE)
