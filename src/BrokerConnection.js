@@ -5,9 +5,7 @@ const feathers = require('@feathersjs/feathers');
 const socketio = require('@feathersjs/socketio-client');
 const auth = require('@feathersjs/authentication-client');
 const request = require('request');
-const { decodeProtectedHeader } = require('jose');
-const { createRemoteJWKSet } = require('jose')
-const { jwtVerify } = require('jose')
+const { decodeProtectedHeader, createRemoteJWKSet, jwtVerify } = require('jose');
 const BeaconsBLE = require('./BeaconsBLE');
 const IPSServerConnection = require('./IPSServerConnection');
 
