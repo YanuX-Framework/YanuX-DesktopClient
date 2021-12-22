@@ -1,0 +1,40 @@
+{
+    "device_name": "Desktop",
+    "http_server_port": 3003,
+    "allow_zeroconf": false,
+    "client_id": "yanux-desktop-client",
+    "client_secret": "topsecret_client_secret",
+    "redirect_uri": "http://192.168.12.1:3003/",
+    "broker_url": "http://192.168.12.1:3002/",
+    "ips_server_url": "http://192.168.12.1:3101/",
+    "oauth2_authorization_server_url": "http://192.168.12.1:3001/",
+    "beacon_scan": true,
+    "beacon_scan_realtime_updates": true,
+    "beacon_advertise": false,
+    "beacon_matcher_parameters": [
+        null,
+        "iBeacon",
+        [
+            "B9407F30-F5F8-466E-AFF9-25556B57FE6D"
+        ]
+    ],
+    "beacon_advertiser_parameters": [
+        "B9407F30-F5F8-466E-AFF9-25556B57FE6D",
+        2,
+        1
+    ],
+    "beacons_print_updated": false,
+    "beacons_print_cleared": false,
+    "beacons_clear_console": false,
+    "beacons_refresh_interval": 3000,
+    "beacons_inactivity_timer": 5000,
+    "wifi_scan": false,
+    "wifi_refresh_interval": 3000,
+    "orientation": 250,
+    "device_uuid": "e92fad57-1de8-4c45-b400-68dc8596c885",
+    "device_capabilities": {
+        "type": "desktop"
+    },
+    "access_token": "bpBQU1Nyca3NZjlvx3KFT3HLbWc31X8kAQ8BNGJKr2jAhXfz9QAdTA0ATgD8iscyCFWEnEptl6hQYIRXMTevUxawemQ0LZaQSl5VY7xBJQZEawALdlCaIiTvztsYSEEjBqTpAsUaw6X8RjoYbEyr1saHFRoF9mDBAv7NV8ICuVy993TNGhGBNM2M9DmK7hbOUa8EkQmrwJQN03LgwGM52IqTunVA5kfljthcA9N5lALpaT3lC3NWvDbnZ1sRHQGX",
+    "refresh_token": "rbf5DXKeRjjoXe3WyWeHfFMHoubdtvpDMAN2XbrOFCBRgv2B5cUOPZxbah5F0vwAEx8AMVCmJ9Mt3FBALNmKVK85UWcgwZtVZrLbkaRoPNeNCzOPlAoQg6fWEsGNHEARZ0UcHtUfzB283VQCaj8ssneUua36hDjwZNiPogLNXLix7eQEJkW1Opk6tINDEtkwkaUrMmJ7Y4MHLuMZwUy2JnXLPwkAgblrX4quaWH8s8tXB9BERbJIf9bFBrGlydsp"
+}
