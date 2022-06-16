@@ -26,7 +26,7 @@
     "@feathersjs/feathers": "^4.5.11",
     "@feathersjs/socketio-client": "^4.5.11",
     "dnssd": "^0.4.1",
-    "electron": "^16.0.5",
+    "electron": "^16.2.6",
     "express": "^4.17.1",
     "jose": "^4.3.7",
     "JSONStream": "^1.3.5",
